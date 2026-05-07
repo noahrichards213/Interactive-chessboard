@@ -39,8 +39,8 @@ void makeMove(int colour) {
       if (sourcePiece.type == '_') {
         printf("You do not have a piece there. Try again: ");
         printf("Your colour is %d\n", colour);
-        printf("The type that you chose was %c\n", board[8 - rankSource][fileSource - 97].type);
-
+        printf("The type that you chose was %c\n",
+               board[8 - rankSource][fileSource - 97].type);
       }
     } else {
       printf("Error with source input.");
@@ -76,7 +76,7 @@ void makeMove(int colour) {
     }
   }
 
-  // remove en passant moves if they weren't aleady made
+  //remove en passant moves if they weren't aleady made
   removeEnPassant();
 
   // handles promotion (but still need to add available moves for promoted
@@ -89,7 +89,8 @@ void makeMove(int colour) {
     board[8 - rankDest][fileDest - 97].file = fileDest;
     board[8 - rankDest][fileDest - 97].hasMoved = true;
 
-    printf("this is the promoted type: %c\n", board[8 - rankDest][fileDest - 97].type);
+    printf("this is the promoted type: %c\n",
+           board[8 - rankDest][fileDest - 97].type);
     board[8 - rankSource][fileSource - 97] = empty;
     return;
   }

@@ -45,13 +45,15 @@ int legalDest(char fileDest, int rankDest, char fileSource, int rankSource,
                   ((matchingRank * 10) + matchingFile) ||
               // to include castilng moves
               board[i][j].availableMoves[k] ==
-                  ((matchingRank * 10) + matchingFile) * (100)) {
-            return board[i][j].availableMoves[k];
-          }
+                  ((matchingRank * 10) + matchingFile) * (100)
+            // to include en passant moves
+            || board[i][j].availableMoves[k] ==
+                    ((matchingRank * 10) + matchingFile) * (1000)) {
+              return board[i][j].availableMoves[k];
+            }
         }
       }
     }
   }
-
   return -1;
 }

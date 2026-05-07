@@ -37,9 +37,9 @@ void printLegalMoves() {
 
               printf("%c%d", 'a' + fileNew, (rankNew + 1));
             } else if (board[i][j].availableMoves[k] > 10000) {
-              printf("We are receiving en passant move\n");
-              rankNew = ((7 - (board[i][j].availableMoves[k] / 10000) / 10));
-              fileNew = ((board[i][j].availableMoves[k]) / 10000) % 10;
+              //enpassant move
+              rankNew = ((7 - (board[i][j].availableMoves[k] / 1000) / 10));
+              fileNew = ((board[i][j].availableMoves[k]) / 1000) % 10;
               printf("%c%d", 'a' + fileNew, (rankNew + 1));
             }
             if (board[i][j].availableMoves[k + 1] != -1) {

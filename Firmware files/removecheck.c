@@ -10,6 +10,7 @@ extern Piece board[8][8];
 // finding the kingSquare
 
 bool removeCheck(Piece piece, int availableMoveIndex, int testedMove) {
+
   int kingSquare;
 
   Piece prevBoard[8][8];
@@ -27,8 +28,12 @@ bool removeCheck(Piece piece, int availableMoveIndex, int testedMove) {
   int fileNew;
 
   // DENOTES CASTLING, WHEN YOU ADD EN PASSANT, CHANGE THIS
-  if (move > 200) {
+  if (move > 200 && move < 10000) {
     move /= 100;
+  }
+
+  if (move > 10000) {
+    move /= 1000;
   }
   // here we make the move
   rankNew = move / 10;

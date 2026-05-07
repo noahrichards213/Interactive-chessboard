@@ -31,18 +31,22 @@ int* rookMoves(Piece piece) {
 
   for (int i = 0; i < leftSize; i++, index++) {
     allMoves[index] = left[i];
+    index++;
   }
 
   for (int i = 0; i < rightSize; i++, index++) {
     allMoves[index] = right[i];
+    index++;
   }
 
   for (int i = 0; i < upSize; i++, index++) {
     allMoves[index] = up[i];
+    index++;
   }
 
   for (int i = 0; i < downSize; i++, index++) {
     allMoves[index] = down[i];
+    index++;
   }
   allMoves[index] = -1;
 
@@ -189,10 +193,21 @@ int* pawnMoves(Piece piece) {
   int capacityMoves = 5;
   int* allMoves = malloc(sizeof(int) * capacityMoves);
 
+  /*this keeps the enpassant if we have detected it
+  This keeps the enpassant move*/
+
   int index = 0;
 
   // handles regular movement
   int i = 0;
+
+  // store en passant move
+  int enPassantMove = -1;
+  if (piece.availableMoves != NULL) {
+    if (piece.availableMoves[0] > 10000) {
+      enPassantMove = piece.availableMoves[0];
+    }
+  }
 
   int nextRank = (8 - rank) + normDir;
   int maxMoves = abs(dir);
@@ -229,8 +244,14 @@ int* pawnMoves(Piece piece) {
     }
   }
 
-  allMoves[index] = -1;
-  return allMoves;
+  if (enPassantMove != -1) {
+    allMoves[index] = enPassantMove;
+    allMoves[index + 1] = -1;
+    return allMoves;
+  } else {
+    allMoves[index] = -1;
+    return allMoves;
+  }
 }
 
 int* kingMoves(Piece piece) {
@@ -269,39 +290,35 @@ int* kingMoves(Piece piece) {
     return noCheckMoves;
   }
 
-  // check if rook's haven't moved
-  bool hRookisGood;
-  bool aRookisGood;
-  if (colour == WHITE) {
-    hRookisGood = (board[7][7].type == 'R' && board[7][7].hasMoved == false);
-    aRookisGood = (board[7][0].type == 'R' && board[0][7].hasMoved == false);
-  } else if (colour == BLACK) {
-    hRookisGood = (board[0][7].type == 'r' && board[7][7].hasMoved == false);
-    aRookisGood = (board[0][0].type == 'r' && board[0][7].hasMoved == false);
-  }
-
-  if (!aRookisGood || !hRookisGood) {
-    noCheckMoves[index] = -1;
-    return noCheckMoves;
-  }
-
-  // now ensure square that square king and rook to are empty. first assume they
-  // are true
+  // first check kingside
+  bool hRookhasMoved = false;
   bool kingEmptySquares = true;
-  bool queenEmptySquares = true;
+
+  if (colour == WHITE) {
+    hRookhasMoved = (board[7][7].type != 'R' || board[7][7].hasMoved == true);
+  } else if (colour == BLACK) {
+    hRookhasMoved = (board[0][7].type != 'r' || board[0][7].hasMoved == true);
+  }
 
   int i = 1;
-  int j = 1;
-
-  // kingside
-  while (i < 3 && kingEmptySquares == true) {
+  while (i <= 2 && kingEmptySquares == true) {
     if (board[8 - rank][(file - 97) + i].type != '_') {
       kingEmptySquares = false;
     }
     i++;
   }
 
-  // queenside
+  // now check queesndie
+  bool aRookhasMoved = false;
+  bool queenEmptySquares = true;
+
+  if (colour == WHITE) {
+    aRookhasMoved = (board[7][0].type != 'R' || board[7][0].hasMoved == true);
+  } else if (colour == BLACK) {
+    aRookhasMoved = (board[0][0].type != 'r' || board[0][0].hasMoved == true);
+  }
+
+  int j = 1;
   while (j <= 3 && queenEmptySquares == true) {
     if (board[8 - rank][(file - 97) - j].type != '_') {
       queenEmptySquares = false;
@@ -310,7 +327,7 @@ int* kingMoves(Piece piece) {
   }
 
   // kingside
-  if (kingEmptySquares == true) {
+  if (kingEmptySquares == true && hRookhasMoved == false) {
     if (piece.colour == WHITE) {
       noCheckMoves[index] = WHITEKINGCASTLE;
     } else if (piece.colour == BLACK) {
@@ -320,17 +337,14 @@ int* kingMoves(Piece piece) {
   }
 
   // queenside
-  if (queenEmptySquares == true) {
+  if (queenEmptySquares == true && aRookhasMoved == false) {
     if (piece.colour == WHITE) {
-      noCheckMoves[index] = BLACKKINGCASTLE;
+      noCheckMoves[index] = WHITEQUEENCASTLE;
     } else if (piece.colour == BLACK) {
       noCheckMoves[index] = BLACKQUEENCASTLE;
     }
     index++;
   }
-
-  /*common conditions:
-  can't castle out of, through, into check (handle in gameloop) */
 
   noCheckMoves[index] = -1;
 

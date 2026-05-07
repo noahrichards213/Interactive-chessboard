@@ -3,8 +3,10 @@
 #include <math.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "arraysize.h"
+#include "printing.h"
 
 extern Piece board[8][8];
 
@@ -43,29 +45,33 @@ void addEnPassant(Piece piece, int rank, char file) {
 
   // white is 1, black is 0
   enemyPawn = colour ? 'p' : 'P';
-  int normDir = colour ? WHITE : BLACK;
   // we know that if the pawn successfully moved two
   // squares nothing can be blocking it
 
   // STILL NEED TO DO MAKE THIS . IT'S CURRENTLY NONSENSE
   //  left side en passant
 
-  if (board[i][j].type == enemyPawn && board[i][j].rank == rank &&
-      board[i][j].file == (file - 1)) {
-    int size = arraySize(board[i][j + 1].availableMoves);
-    board[i][j + 1].availableMoves[size] =
-        ((i + normDir) * 10 + (file - 1) * 10000);
-    board[i][j + 1].availableMoves[size + 1] = -1;
+  int boardRank = 8 - rank;
+  int boardFile = file - 97;
+
+  // only one en passant move is possible per turn per peace
+  int capacityMoves = 1;
+  int* enPassantMove = malloc(sizeof(int) * capacityMoves);
+
+  // this is immediately recognized and deal with in change avialable moves
+  if (board[boardRank][boardFile - 1].type == enemyPawn) {
+    // creating en passant array move
+    //  multiples the enpassant square by 1000 to differentiate from reg move
+    enPassantMove[0] = (boardRank * 10 + (boardFile)) * 1000;
+    board[boardRank][boardFile - 1].availableMoves = enPassantMove;
   }
 
-  // right side en passant
-
-  if (board[i][j].type == enemyPawn && board[i][j].rank == rank &&
-      board[i][j].file == (file + 1)) {
-    int size = arraySize(board[i][j - 1].availableMoves);
-    board[i][j - 1].availableMoves[size] =
-        ((i + normDir) * 10 + (file + 1) * 10000);
-    board[i][j - 1].availableMoves[size + 1] = -1;
+  if (board[boardRank][boardFile + 1].type == enemyPawn) {
+    // creating en passant array move
+    //  multiples the enpassant square by 1000 to differentiate from reg move
+    enPassantMove[0] = (boardRank * 10 + (boardFile)) * 1000;
+    board[boardRank][boardFile + 1].availableMoves = enPassantMove;
   }
+
   return;
 }

@@ -78,7 +78,6 @@ int main() {
       }
     }
 
-
     for (int i = 0; i < 8; i++) {
       for (int j = 0; j < 8; j++) {
         // first, we need to check every single move and see if it leads to
@@ -87,35 +86,17 @@ int main() {
         for (int k = 0; k < size; k++) {
           // TESTING
 
-          if (board[i][j].type != '_') {
+          if (board[i][j].type != '_' && board[i][j].availableMoves != -1) {
             if (removeCheck(board[i][j], k, board[i][j].availableMoves[k]) ==
                 true) {
               board[i][j].availableMoves[k] = ALLOWSCHECK;
             }
           }
-
-          // // now we check that we're through check
-          // if (board[i][j].type != '_') {
-          //   if (board[i][j].availableMoves[k] == WHITEKINGCASTLE ||
-          //       board[i][j].availableMoves[k] == BLACKKINGCASTLE ||
-          //       board[i][j].availableMoves[k] == WHITEQUEENCASTLE ||
-          //       board[i][j].availableMoves[k] == BLACKQUEENCASTLE) {
-          //     if (throughCheck(board[i][j].availableMoves[k], colour) == true) {
-          //       board[i][j].availableMoves[k] = CASTLINGTHROUGHCHECK;
-          //     }
-
-          //     // now we check that we're castling out of check (in check is
-          //     // covered by removing moves that result in check)
-          //     if (inCheck(colour)) {
-          //       board[i][j].availableMoves[k] = CASTLINGOUTOFCHECK;
-          //     }
-          //   }
-          // }
         }
       }
     }
     printLegalMoves();
-
+    printBoard(board);
 
     if (colour == WHITE) {
       colour = BLACK;
