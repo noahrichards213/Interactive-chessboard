@@ -6,6 +6,7 @@
 
 #include "arraysize.h"
 #include "constantsandstructs.h"
+#include "printing.h"
 
 extern Piece board[8][8];
 
@@ -19,6 +20,8 @@ Piece legalSource(char file, int rank, int colour) {
       }
     }
   }
+  printf("file: %c, rank: %c\n", file, rank);
+  printBoard(board);
 
   return empty;
 }

@@ -5,7 +5,7 @@
 
 extern Piece board[8][8];
 
-void printBoard() {
+void printBoard(Piece board[8][8]) {
   for (int i = 0; i < 8; i++) {
     for (int j = 0; j < 8; j++) {
       printf("%c", board[i][j].type);
@@ -37,6 +37,7 @@ void printLegalMoves() {
 
               printf("%c%d", 'a' + fileNew, (rankNew + 1));
             } else if (board[i][j].availableMoves[k] > 10000) {
+              printf("We are receiving en passant move\n");
               rankNew = ((7 - (board[i][j].availableMoves[k] / 10000) / 10));
               fileNew = ((board[i][j].availableMoves[k]) / 10000) % 10;
               printf("%c%d", 'a' + fileNew, (rankNew + 1));

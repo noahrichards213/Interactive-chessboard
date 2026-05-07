@@ -78,7 +78,6 @@ int main() {
       }
     }
 
-    printBoard(board);
 
     for (int i = 0; i < 8; i++) {
       for (int j = 0; j < 8; j++) {
@@ -101,8 +100,7 @@ int main() {
           //       board[i][j].availableMoves[k] == BLACKKINGCASTLE ||
           //       board[i][j].availableMoves[k] == WHITEQUEENCASTLE ||
           //       board[i][j].availableMoves[k] == BLACKQUEENCASTLE) {
-          //     if (throughCheck(board[i][j].availableMoves[k], colour) ==
-          //     true) {
+          //     if (throughCheck(board[i][j].availableMoves[k], colour) == true) {
           //       board[i][j].availableMoves[k] = CASTLINGTHROUGHCHECK;
           //     }
 
@@ -117,6 +115,7 @@ int main() {
       }
     }
     printLegalMoves();
+
 
     if (colour == WHITE) {
       colour = BLACK;

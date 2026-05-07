@@ -8,7 +8,7 @@
 
 extern Piece board[8][8];
 
-// remove loop from this function and put it in gameloop
+//int colour is the colour whose turn it is not
 void changeAvailableMoves(Piece* piece, int colour) {
   char type = piece->type;
 
@@ -16,6 +16,8 @@ void changeAvailableMoves(Piece* piece, int colour) {
     piece->availableMoves = NULL;
     return;
   }
+
+
 
   if (type == 'P' || type == 'p') {
     piece->availableMoves = pawnMoves(*piece);
