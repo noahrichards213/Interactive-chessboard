@@ -24,7 +24,7 @@ static const int WHITEQUEENCASTLE = 7200;
 static const int BLACKKINGCASTLE = 600;
 static const int BLACKQUEENCASTLE = 200;
 
-static const int ALLOWSCHECK = -1;
+static const int ALLOWSCHECK = -5;
 static const int CASTLINGTHROUGHCHECK = -2;
 static const int CASTLINGOUTOFCHECK = -3;
 static const int EN_PASSANT = -4;

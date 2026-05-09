@@ -6,9 +6,11 @@
 #include "constantsandstructs.h"
 #include "findkingsquare.h"
 #include "legalmoveandcapture.h"
+#include "printing.h"
 
 // just for the constants
 #include "availablemoves.h"
+
 
 extern Piece board[8][8];
 
@@ -20,6 +22,9 @@ bool inCheck(int colour) {
       // attacking white
       if (board[i][j].colour != colour && board[i][j].type != '_') {
         int k = 0;
+        Piece piece = board[i][j];
+        printf("type: %c\n", board[i][j].type);
+        printf("move: %d\n", board[i][j].availableMoves[k]);
         while (board[i][j].availableMoves[k] != -1) {
           if (board[i][j].availableMoves[k] == kingSquare) {
             return true;

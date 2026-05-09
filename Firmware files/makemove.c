@@ -76,7 +76,7 @@ void makeMove(int colour) {
     }
   }
 
-  //remove en passant moves if they weren't aleady made
+  // remove en passant moves if they weren't aleady made
   removeEnPassant();
 
   // handles promotion (but still need to add available moves for promoted
@@ -117,7 +117,7 @@ void makeMove(int colour) {
 
   // here we check if we need too add en passant (kind of weird with one
   // condition in each function but whatever, can fix later)
-  if (sourcePiece.type == 'P' || sourcePiece.type || 'p') {
+  if (sourcePiece.type == 'P' || sourcePiece.type == 'p') {
     addEnPassant(sourcePiece, rankDest, fileDest);
   }
   return;

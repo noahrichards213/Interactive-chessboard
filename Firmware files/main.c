@@ -84,11 +84,17 @@ int main() {
         // check (it then would be unallowed)
         int size = arraySize(board[i][j].availableMoves);
         for (int k = 0; k < size; k++) {
-          // TESTING
-
-          if (board[i][j].type != '_' && board[i][j].availableMoves != -1) {
+          if (board[i][j].type != '_') {
             if (removeCheck(board[i][j], k, board[i][j].availableMoves[k]) ==
                 true) {
+              if (board[i][j].type == 'n') {
+                printf("The piece was: %c\n", board[i][j].type);
+                printf("These are its legal moves:\n");
+                for (int p = 0; p < arraySize(board[i][j].availableMoves);
+                     p++) {
+                  printf("%d", board[i][j].availableMoves[p]);
+                }
+              }
               board[i][j].availableMoves[k] = ALLOWSCHECK;
             }
           }
@@ -103,15 +109,13 @@ int main() {
     } else if (colour == BLACK) {
       colour = WHITE;
     }
+    haveMove = checkLegalMoves(colour);
   }
-  haveMove = checkLegalMoves(colour);
 
-  if (haveMove == false) {
-    if (inCheck(colour)) {
-      printf("It's checkmate\n");
-    } else {
-      printf("It's stalemate\n");
-    }
+  if (inCheck(colour)) {
+    printf("It's checkmate\n");
+  } else {
+    printf("It's stalemate\n");
   }
 
   return 0;

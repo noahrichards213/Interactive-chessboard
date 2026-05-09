@@ -8,15 +8,9 @@
 
 extern Piece board[8][8];
 
-//int colour is the colour whose turn it is not
+// int colour is the colour whose turn it is not
 void changeAvailableMoves(Piece* piece, int colour) {
   char type = piece->type;
-
-  if (piece->colour == colour) {
-    piece->availableMoves = NULL;
-    return;
-  }
-
 
 
   if (type == 'P' || type == 'p') {
@@ -41,7 +35,9 @@ bool checkLegalMoves(int turn) {
       if (board[i][j].colour == turn) {
         int size = arraySize(board[i][j].availableMoves);
         for (int k = 0; k < size; k++) {
-          if (board[i][j].availableMoves[k] >= 0) {
+          if (board[i][j].availableMoves[k] > 0) {
+            printf("This was the was piece: %c\n", board[i][j].type);
+            printf("This was the move: %d\n", board[i][j].availableMoves[k]);
             return true;
           }
         }

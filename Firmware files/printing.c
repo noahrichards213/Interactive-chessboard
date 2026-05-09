@@ -23,25 +23,28 @@ void printLegalMoves() {
         int k = 0;
         if (board[i][j].availableMoves != NULL) {
           while (board[i][j].availableMoves[k] != -1) {
-            int rankNew;
-            int fileNew;
-            if (board[i][j].availableMoves[k] < 100) {
-              rankNew = (7 - (board[i][j].availableMoves[k] / 10));
-              fileNew = board[i][j].availableMoves[k] % 10;
-              printf("%c%d", 'a' + fileNew, (rankNew + 1));
-            } else if (board[i][j].availableMoves[k] > 100 &&
-                       board[i][j].availableMoves[k] < 10000) {
-              // castle move
-              rankNew = ((7 - (board[i][j].availableMoves[k] / 100) / 10));
-              fileNew = ((board[i][j].availableMoves[k]) / 100) % 10;
+            if (board[i][j].availableMoves[k] != -5) {
+              int rankNew;
+              int fileNew;
+              if (board[i][j].availableMoves[k] < 100) {
+                rankNew = (7 - (board[i][j].availableMoves[k] / 10));
+                fileNew = board[i][j].availableMoves[k] % 10;
+                printf("%c%d", 'a' + fileNew, (rankNew + 1));
+              } else if (board[i][j].availableMoves[k] > 100 &&
+                         board[i][j].availableMoves[k] < 10000) {
+                // castle move
+                rankNew = ((7 - (board[i][j].availableMoves[k] / 100) / 10));
+                fileNew = ((board[i][j].availableMoves[k]) / 100) % 10;
 
-              printf("%c%d", 'a' + fileNew, (rankNew + 1));
-            } else if (board[i][j].availableMoves[k] > 10000) {
-              //enpassant move
-              rankNew = ((7 - (board[i][j].availableMoves[k] / 1000) / 10));
-              fileNew = ((board[i][j].availableMoves[k]) / 1000) % 10;
-              printf("%c%d", 'a' + fileNew, (rankNew + 1));
+                printf("%c%d", 'a' + fileNew, (rankNew + 1));
+              } else if (board[i][j].availableMoves[k] > 10000) {
+                // enpassant move
+                rankNew = ((7 - (board[i][j].availableMoves[k] / 1000) / 10));
+                fileNew = ((board[i][j].availableMoves[k]) / 1000) % 10;
+                printf("%c%d", 'a' + fileNew, (rankNew + 1));
+              }
             }
+
             if (board[i][j].availableMoves[k + 1] != -1) {
               printf(", ");
             }

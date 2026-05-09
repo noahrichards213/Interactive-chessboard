@@ -34,9 +34,16 @@ int* checkOneDir(Piece piece, int hort, int vert) {
     if (board[8 - (rank + vert)][file + hort - 97].type == '_') {
       possibleMoves[i] = (8 - (rank + vert)) * 10 + (file - 97) + hort;
       i++;
-      hort += (hort / abs(hort));
-      vert += (vert / abs(vert));
 
+      if (hort != 0) {
+        hort = hort + hort / abs(hort);
+      }
+
+      if (vert != 0) {
+        vert = vert + vert / abs(vert);
+      }
+
+    //come across enemy piece
     } else if (board[8 - (rank + vert)][file + hort - 97].colour != colour) {
       possibleMoves[i] = (8 - (rank + vert)) * 10 + (file - 97) + hort;
       possibleMoves[i + 1] = -1;

@@ -10,7 +10,6 @@ extern Piece board[8][8];
 // finding the kingSquare
 
 bool removeCheck(Piece piece, int availableMoveIndex, int testedMove) {
-
   int kingSquare;
 
   Piece prevBoard[8][8];
@@ -42,6 +41,7 @@ bool removeCheck(Piece piece, int availableMoveIndex, int testedMove) {
   board[rankNew][fileNew] = board[(8 - piece.rank)][(piece.file - 97)];
   board[(8 - piece.rank)][(piece.file - 97)] = empty;
 
+  
   kingSquare = findKingSquare(piece.colour);
 
   for (int i = 0; i < 8; i++) {
@@ -52,6 +52,7 @@ bool removeCheck(Piece piece, int availableMoveIndex, int testedMove) {
           // other colour for hypothetical
           changeAvailableMoves(&board[i][j], pieceColour);
           int size = arraySize(board[i][j].availableMoves);
+
           for (int k = 0; k < size; k++) {
             if (board[i][j].availableMoves[k] == kingSquare) {
               for (int l = 0; l < 8; l++) {
@@ -59,8 +60,9 @@ bool removeCheck(Piece piece, int availableMoveIndex, int testedMove) {
                   board[l][m] = prevBoard[l][m];
                 }
               }
+
               return true;
-            }
+            } 
           }
         }
       }

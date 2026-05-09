@@ -31,22 +31,18 @@ int* rookMoves(Piece piece) {
 
   for (int i = 0; i < leftSize; i++, index++) {
     allMoves[index] = left[i];
-    index++;
   }
 
   for (int i = 0; i < rightSize; i++, index++) {
     allMoves[index] = right[i];
-    index++;
   }
 
   for (int i = 0; i < upSize; i++, index++) {
     allMoves[index] = up[i];
-    index++;
   }
 
   for (int i = 0; i < downSize; i++, index++) {
     allMoves[index] = down[i];
-    index++;
   }
   allMoves[index] = -1;
 
