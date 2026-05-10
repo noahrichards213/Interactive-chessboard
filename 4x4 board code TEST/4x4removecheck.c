@@ -5,16 +5,16 @@
 #include "4x4legalmoveandcapture.h"
 #include "4x4printing.h"
 
-extern Piece board[8][8];
+extern Piece board[BOARDSIZE][BOARDSIZE];
 
 // finding the kingSquare
 
 bool removeCheck(Piece piece, int availableMoveIndex, int testedMove) {
   int kingSquare;
 
-  Piece prevBoard[8][8];
-  for (int i = 0; i < 8; i++) {
-    for (int j = 0; j < 8; j++) {
+  Piece prevBoard[BOARDSIZE][BOARDSIZE];
+  for (int i = 0; i < BOARDSIZE; i++) {
+    for (int j = 0; j < BOARDSIZE; j++) {
       prevBoard[i][j] = board[i][j];
     }
   }
@@ -27,10 +27,11 @@ bool removeCheck(Piece piece, int availableMoveIndex, int testedMove) {
   int fileNew;
 
   // DENOTES CASTLING, WHEN YOU ADD EN PASSANT, CHANGE THIS
-  if (move > 200 && move < 10000) {
+  if (move >= 100 && move < 10000) {
     move /= 100;
   }
 
+  //still applies for 4x4 board, pawns will start on first rank
   if (move > 10000) {
     move /= 1000;
   }
@@ -38,14 +39,14 @@ bool removeCheck(Piece piece, int availableMoveIndex, int testedMove) {
   rankNew = move / 10;
   fileNew = move % 10;
 
-  board[rankNew][fileNew] = board[(8 - piece.rank)][(piece.file - 97)];
-  board[(8 - piece.rank)][(piece.file - 97)] = empty;
+  board[rankNew][fileNew] = board[(BOARDSIZE - piece.rank)][(piece.file - 97)];
+  board[(BOARDSIZE - piece.rank)][(piece.file - 97)] = empty;
 
   
   kingSquare = findKingSquare(piece.colour);
 
-  for (int i = 0; i < 8; i++) {
-    for (int j = 0; j < 8; j++) {
+  for (int i = 0; i < BOARDSIZE; i++) {
+    for (int j = 0; j < BOARDSIZE; j++) {
       if (board[i][j].type != '_') {
         if (board[i][j].colour == oppositeColour) {
           // pieceColour is the turn that it is not, because we are moving the
@@ -55,8 +56,8 @@ bool removeCheck(Piece piece, int availableMoveIndex, int testedMove) {
 
           for (int k = 0; k < size; k++) {
             if (board[i][j].availableMoves[k] == kingSquare) {
-              for (int l = 0; l < 8; l++) {
-                for (int m = 0; m < 8; m++) {
+              for (int l = 0; l < BOARDSIZE; l++) {
+                for (int m = 0; m < BOARDSIZE; m++) {
                   board[l][m] = prevBoard[l][m];
                 }
               }
@@ -69,8 +70,8 @@ bool removeCheck(Piece piece, int availableMoveIndex, int testedMove) {
     }
   }
 
-  for (int l = 0; l < 8; l++) {
-    for (int m = 0; m < 8; m++) {
+  for (int l = 0; l < BOARDSIZE; l++) {
+    for (int m = 0; m < BOARDSIZE; m++) {
       board[l][m] = prevBoard[l][m];
     }
   }

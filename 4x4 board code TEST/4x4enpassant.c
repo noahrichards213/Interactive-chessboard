@@ -8,11 +8,11 @@
 #include "4x4arraysize.h"
 #include "4x4printing.h"
 
-extern Piece board[8][8];
+extern Piece board[BOARDSIZE][BOARDSIZE];
 
 void removeEnPassant() {
-  for (int i = 0; i < 8; i++) {
-    for (int j = 0; j < 8; j++) {
+  for (int i = 0; i < BOARDSIZE; i++) {
+    for (int j = 0; j < BOARDSIZE; j++) {
       int size = arraySize(board[i][j].availableMoves);
       for (int k = 0; k < size; k++) {
         // has en passant move
@@ -51,7 +51,7 @@ void addEnPassant(Piece piece, int rank, char file) {
   // STILL NEED TO DO MAKE THIS . IT'S CURRENTLY NONSENSE
   //  left side en passant
 
-  int boardRank = 8 - rank;
+  int boardRank = BOARDSIZE - rank;
   int boardFile = file - 97;
 
   // only one en passant move is possible per turn per peace

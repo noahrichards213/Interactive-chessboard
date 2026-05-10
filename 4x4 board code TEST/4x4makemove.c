@@ -11,7 +11,7 @@
 #include "4x4legalmoveandcapture.h"
 #include "4x4printing.h"
 #include "4x4promotion.h"
-extern Piece board[8][8];
+extern Piece board[BOARDSIZE][BOARDSIZE];
 
 // keep in mind we are designing for actual circuit
 //  so we will not actually use fgets
@@ -40,7 +40,7 @@ void makeMove(int colour) {
         printf("You do not have a piece there. Try again: ");
         printf("Your colour is %d\n", colour);
         printf("The type that you chose was %c\n",
-               board[8 - rankSource][fileSource - 97].type);
+               board[BOARDSIZE - rankSource][fileSource - 97].type);
       }
     } else {
       printf("Error with source input.");
@@ -81,39 +81,39 @@ void makeMove(int colour) {
 
   // handles promotion (but still need to add available moves for promoted
   // piece in)
-  if ((sourcePiece.type == 'P' && rankDest == 8) ||
+  if ((sourcePiece.type == 'P' && rankDest == BOARDSIZE) ||
       (sourcePiece.type == 'p' && rankDest == 1)) {
-    board[8 - rankDest][fileDest - 97] =
+    board[BOARDSIZE - rankDest][fileDest - 97] =
         executePromotion(colour, rankDest, fileDest);
-    board[8 - rankDest][fileDest - 97].rank = rankDest;
-    board[8 - rankDest][fileDest - 97].file = fileDest;
-    board[8 - rankDest][fileDest - 97].hasMoved = true;
+    board[BOARDSIZE - rankDest][fileDest - 97].rank = rankDest;
+    board[BOARDSIZE - rankDest][fileDest - 97].file = fileDest;
+    board[BOARDSIZE - rankDest][fileDest - 97].hasMoved = true;
 
     printf("this is the promoted type: %c\n",
-           board[8 - rankDest][fileDest - 97].type);
-    board[8 - rankSource][fileSource - 97] = empty;
+           board[BOARDSIZE - rankDest][fileDest - 97].type);
+    board[BOARDSIZE - rankSource][fileSource - 97] = empty;
     return;
   }
 
   // handles castling
 
   // this range is just castling moves, no enpassant
-  if ((yesDest > 100 && yesDest < 10000)) {
+  if ((yesDest >= 100 && yesDest < 10000)) {
     executeCastling(yesDest);
     return;
   }
 
   // regular piece movement
-  board[8 - rankDest][fileDest - 97] = sourcePiece;
+  board[BOARDSIZE - rankDest][fileDest - 97] = sourcePiece;
   // but we change rank and file, set avail moves to NULL (will be chnaged later
   // but now fails loudly)
-  board[8 - rankDest][fileDest - 97].rank = rankDest;
-  board[8 - rankDest][fileDest - 97].file = fileDest;
-  board[8 - rankDest][fileDest - 97].hasMoved = true;
+  board[BOARDSIZE - rankDest][fileDest - 97].rank = rankDest;
+  board[BOARDSIZE - rankDest][fileDest - 97].file = fileDest;
+  board[BOARDSIZE - rankDest][fileDest - 97].hasMoved = true;
 
   // actually we need to set opposite colour to NULL when it's not their turn
 
-  board[8 - rankSource][fileSource - 97] = empty;
+  board[BOARDSIZE - rankSource][fileSource - 97] = empty;
 
   // here we check if we need too add en passant (kind of weird with one
   // condition in each function but whatever, can fix later)

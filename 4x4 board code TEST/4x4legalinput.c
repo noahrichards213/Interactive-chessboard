@@ -8,11 +8,11 @@
 #include "4x4constantsandstructs.h"
 #include "4x4printing.h"
 
-extern Piece board[8][8];
+extern Piece board[BOARDSIZE][BOARDSIZE];
 
 Piece legalSource(char file, int rank, int colour) {
-  for (int i = 0; i < 8; i++) {
-    for (int j = 0; j < 8; j++) {
+  for (int i = 0; i < BOARDSIZE; i++) {
+    for (int j = 0; j < BOARDSIZE; j++) {
       // if rank, file, and colour match
       if (board[i][j].rank == rank && board[i][j].file == file &&
           board[i][j].colour == colour) {
@@ -28,8 +28,8 @@ Piece legalSource(char file, int rank, int colour) {
 
 int legalDest(char fileDest, int rankDest, char fileSource, int rankSource,
               int colour) {
-  for (int i = 0; i < 8; i++) {
-    for (int j = 0; j < 8; j++) {
+  for (int i = 0; i < BOARDSIZE; i++) {
+    for (int j = 0; j < BOARDSIZE; j++) {
       // if rank, file, and colour match
       if (board[i][j].rank == rankSource && board[i][j].file == fileSource &&
           board[i][j].colour == colour) {
@@ -37,7 +37,7 @@ int legalDest(char fileDest, int rankDest, char fileSource, int rankSource,
 
         // matching character input to actual data in int *availableMoves
 
-        int matchingRank = 8 - rankDest;
+        int matchingRank = BOARDSIZE - rankDest;
         int matchingFile = fileDest - 97;
 
         for (int k = 0; k < size; k++) {

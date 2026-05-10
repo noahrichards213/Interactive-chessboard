@@ -12,4 +12,6 @@ void testQueen();
 void testKing();
 
 void testCastle();
+void testPromotion();
+void testEnPassant();
 #endif

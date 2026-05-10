@@ -12,13 +12,13 @@
 #include "4x4availablemoves.h"
 
 
-extern Piece board[8][8];
+extern Piece board[BOARDSIZE][BOARDSIZE];
 
 bool inCheck(int colour) {
   int kingSquare = findKingSquare(colour);
 
-  for (int i = 0; i < 8; i++) {
-    for (int j = 0; j < 8; j++) {
+  for (int i = 0; i < BOARDSIZE; i++) {
+    for (int j = 0; j < BOARDSIZE; j++) {
       // attacking white
       if (board[i][j].colour != colour && board[i][j].type != '_') {
         int k = 0;
@@ -40,22 +40,23 @@ bool inCheck(int colour) {
 
 bool throughCheck(int castle, int colour) {
   int between;
+  //hard-coded vales for testing
   // white kingside
   if (castle == WHITEKINGCASTLE) {
-    between = 75;
+    between = 31;
     // black kingside
   } else if (castle == BLACKKINGCASTLE) {
-    between = 5;
+    between = 1;
     // white queenside
   } else if (castle == WHITEQUEENCASTLE) {
-    between = 73;
+    between = 32;
     // black queenside
   } else if (castle == BLACKQUEENCASTLE) {
-    between = 3;
+    between = 2;
   }
 
-  for (int i = 0; i < 8; i++) {
-    for (int j = 0; i < 8; j++) {
+  for (int i = 0; i < BOARDSIZE; i++) {
+    for (int j = 0; i < BOARDSIZE; j++) {
       if (board[i][j].colour != colour && board[i][j].type != '_') {
         int betweenSize = arraySize(board[i][j].availableMoves);
         for (int k = 0; i < betweenSize; k++) {

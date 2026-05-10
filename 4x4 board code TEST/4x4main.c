@@ -28,7 +28,7 @@
 #include "4x4availablemoves.h"
 
 // global board
-Piece board[8][8];
+Piece board[BOARDSIZE][BOARDSIZE];
 
 // setup
 #include "4x4setup.h"
@@ -70,16 +70,16 @@ int main() {
     makeMove(colour);
 
     // change legal moves
-    for (int i = 0; i < 8; i++) {
-      for (int j = 0; j < 8; j++) {
+    for (int i = 0; i < BOARDSIZE; i++) {
+      for (int j = 0; j < BOARDSIZE; j++) {
         if (board[i][j].type != '_') {
           changeAvailableMoves(&board[i][j], colour);
         }
       }
     }
 
-    for (int i = 0; i < 8; i++) {
-      for (int j = 0; j < 8; j++) {
+    for (int i = 0; i < BOARDSIZE; i++) {
+      for (int j = 0; j < BOARDSIZE; j++) {
         // first, we need to check every single move and see if it leads to
         // check (it then would be unallowed)
         int size = arraySize(board[i][j].availableMoves);

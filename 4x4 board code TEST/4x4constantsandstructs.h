@@ -19,10 +19,10 @@ typedef struct Piece {
 } Piece;
 
 // constants
-static const int WHITEKINGCASTLE = 7600;
-static const int WHITEQUEENCASTLE = 7200;
-static const int BLACKKINGCASTLE = 600;
-static const int BLACKQUEENCASTLE = 200;
+static const int WHITEKINGCASTLE = 3200;
+static const int WHITEQUEENCASTLE = 3100;
+static const int BLACKKINGCASTLE = 200;
+static const int BLACKQUEENCASTLE = 100;
 
 static const int ALLOWSCHECK = -5;
 static const int CASTLINGTHROUGHCHECK = -2;

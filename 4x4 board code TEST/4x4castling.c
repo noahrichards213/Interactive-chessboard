@@ -5,12 +5,12 @@
 #include "4x4constantsandstructs.h"
 #include "4x4legalmoveandcapture.h"
 
-extern Piece board[8][8];
+extern Piece board[BOARDSIZE][BOARDSIZE];
 
 void executeCastling(int castlingMove) {
   int rank;
   int colour;
-  char oldfileKing = 'e';
+  char oldfileKing;
   char newfileKing;
   char typeKing;
   char typeRook;
@@ -31,14 +31,16 @@ void executeCastling(int castlingMove) {
   }
 
   if (castlingMove == WHITEKINGCASTLE || castlingMove == BLACKKINGCASTLE) {
-    newfileKing = 'g';
-    newfileRook = 'f';
-    oldfileRook = 'h';
+    oldfileKing = 'a';
+    newfileKing = 'c';
+    newfileRook = 'b';
+    oldfileRook = 'd';
 
   } else if (castlingMove == WHITEQUEENCASTLE ||
              castlingMove == BLACKQUEENCASTLE) {
-    newfileKing = 'c';
-    newfileRook = 'd';
+    oldfileKing = 'd';
+    newfileKing = 'b';
+    newfileRook = 'c';
     oldfileRook = 'a';
   }
 
@@ -47,14 +49,14 @@ void executeCastling(int castlingMove) {
   Piece rook = {true, colour, rank, newfileRook, typeRook, NULL};
 
   // original king square
-  board[8 - rank][oldfileKing - 97] = empty;
+  board[BOARDSIZE - rank][oldfileKing - 97] = empty;
 
   // original rook square
-  board[8 - rank][oldfileRook - 97] = empty;
+  board[BOARDSIZE - rank][oldfileRook - 97] = empty;
 
   // new king square
-  board[8 - rank][newfileKing - 97] = king;
+  board[BOARDSIZE - rank][newfileKing - 97] = king;
 
   // new rook square
-  board[8 - rank][newfileRook - 97] = rook;
+  board[BOARDSIZE - rank][newfileRook - 97] = rook;
 }

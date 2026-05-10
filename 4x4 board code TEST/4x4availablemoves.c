@@ -8,7 +8,7 @@
 #include "4x4checkonedir.h"
 #include "4x4constantsandstructs.h"
 
-extern Piece board[8][8];
+extern Piece board[BOARDSIZE][BOARDSIZE];
 
 int* rookMoves(Piece piece) {
   int* left = checkOneDir(piece, -1, 0);
@@ -133,13 +133,13 @@ int* knightMoves(Piece piece) {
   for (int i = -1; i <= 1; i++) {
     for (int j = -1; j <= 1; j++) {
       if (i != 0 && j != 0) {
-        addedRank = 8 - (rank + 2 * j);
+        addedRank = BOARDSIZE - (rank + 2 * j);
         //-97 to manipulate ascii value
         addedFile = (file + 2 * i) - 97;
 
         // first square per corner
-        if (addedRank >= 0 && addedRank <= 7 && (addedFile - i) >= 0 &&
-            (addedFile - i) <= 7) {
+        if (addedRank >= 0 && addedRank <= (BOARDSIZE - 1) && (addedFile - i) >= 0 &&
+            (addedFile - i) <= (BOARDSIZE - 1)) {
           if (board[addedRank][addedFile - i].type == '_' ||
               board[addedRank][addedFile - i].colour != colour) {
             allMoves[index] = addedRank * 10 + (addedFile - i);
@@ -147,8 +147,8 @@ int* knightMoves(Piece piece) {
           }
         }
         // second square per corner
-        if ((addedRank + j) >= 0 && (addedRank + j) <= 7 && addedFile >= 0 &&
-            addedFile <= 7) {
+        if ((addedRank + j) >= 0 && (addedRank + j) <= (BOARDSIZE - 1) && addedFile >= 0 &&
+            addedFile <= (BOARDSIZE - 1)) {
           if (board[addedRank + j][addedFile].type == '_' ||
               board[addedRank + j][addedFile].colour != colour) {
             allMoves[index] = (addedRank + j) * 10 + addedFile;
@@ -205,7 +205,7 @@ int* pawnMoves(Piece piece) {
     }
   }
 
-  int nextRank = (8 - rank) + normDir;
+  int nextRank = (BOARDSIZE - rank) + normDir;
   int maxMoves = abs(dir);
   while (i < maxMoves && board[nextRank][file - 97].type == '_') {
     // movement forward
@@ -221,8 +221,8 @@ int* pawnMoves(Piece piece) {
   // handling captures
   // for left capture
   if ((file - 1) >= 'a') {
-    if (board[(8 - rank) + normDir][(file - 97) - 1].colour != colour &&
-        board[(8 - rank) + normDir][(file - 97) - 1].type != '_') {
+    if (board[(BOARDSIZE - rank) + normDir][(file - 97) - 1].colour != colour &&
+        board[(BOARDSIZE - rank) + normDir][(file - 97) - 1].type != '_') {
       //-97 to manipulaet ascii value
       allMoves[index] = ((8 - rank) + normDir) * 10 + ((file - 97) - 1);
       index++;
@@ -266,10 +266,10 @@ int* kingMoves(Piece piece) {
       if (!(i == 0 && j == 0)) {
         // -97 to manipulate ascii value
         int addedFile = (file - 97) + i;
-        int addedRank = (8 - rank) + j;
+        int addedRank = (BOARDSIZE - rank) + j;
 
-        if (addedFile >= 0 && addedFile <= 7 && addedRank >= 0 &&
-            addedRank <= 7) {
+        if (addedFile >= 0 && addedFile <= (BOARDSIZE - 1) && addedRank >= 0 &&
+            addedRank <= (BOARDSIZE - 1)) {
           if (board[addedRank][addedFile].type == '_' ||
               board[addedRank][addedFile].colour != colour) {
             noCheckMoves[index] = addedRank * 10 + addedFile;
@@ -280,7 +280,7 @@ int* kingMoves(Piece piece) {
     }
   }
 
-  // castling
+  // castling for the 4x4 is king and rook in the corner
   if (piece.hasMoved == true) {
     noCheckMoves[index] = -1;
     return noCheckMoves;
@@ -291,9 +291,9 @@ int* kingMoves(Piece piece) {
   bool kingEmptySquares = true;
 
   if (colour == WHITE) {
-    hRookhasMoved = (board[7][7].type != 'R' || board[7][7].hasMoved == true);
+    hRookhasMoved = (board[BOARDSIZE - 1][BOARDSIZE - 1].type != 'R' || board[BOARDSIZE - 1][BOARDSIZE - 1].hasMoved == true);
   } else if (colour == BLACK) {
-    hRookhasMoved = (board[0][7].type != 'r' || board[0][7].hasMoved == true);
+    hRookhasMoved = (board[0][BOARDSIZE - 1].type != 'r' || board[0][BOARDSIZE - 1].hasMoved == true);
   }
 
   int i = 1;
@@ -309,14 +309,15 @@ int* kingMoves(Piece piece) {
   bool queenEmptySquares = true;
 
   if (colour == WHITE) {
-    aRookhasMoved = (board[7][0].type != 'R' || board[7][0].hasMoved == true);
+    aRookhasMoved = (board[BOARDSIZE - 1][0].type != 'R' || board[BOARDSIZE - 1][0].hasMoved == true);
   } else if (colour == BLACK) {
     aRookhasMoved = (board[0][0].type != 'r' || board[0][0].hasMoved == true);
   }
 
   int j = 1;
-  while (j <= 3 && queenEmptySquares == true) {
-    if (board[8 - rank][(file - 97) - j].type != '_') {
+  //for queenside castling, king and rook in opposite corners (queenside only 2 squares between)
+  while (j <= 2 && queenEmptySquares == true) {
+    if (board[BOARDSIZE - rank][(file - 97) - j].type != '_') {
       queenEmptySquares = false;
     }
     j++;

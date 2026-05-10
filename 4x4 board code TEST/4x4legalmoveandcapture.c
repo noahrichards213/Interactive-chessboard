@@ -6,7 +6,7 @@
 #include "4x4arraysize.h"
 #include "4x4availablemoves.h"
 
-extern Piece board[8][8];
+extern Piece board[BOARDSIZE][BOARDSIZE];
 
 // int colour is the colour whose turn it is not
 void changeAvailableMoves(Piece* piece, int colour) {
@@ -30,8 +30,8 @@ void changeAvailableMoves(Piece* piece, int colour) {
 
 // checks to see if there is a legal move
 bool checkLegalMoves(int turn) {
-  for (int i = 0; i < 8; i++) {
-    for (int j = 0; j < 8; j++) {
+  for (int i = 0; i < BOARDSIZE; i++) {
+    for (int j = 0; j < BOARDSIZE; j++) {
       if (board[i][j].colour == turn) {
         int size = arraySize(board[i][j].availableMoves);
         for (int k = 0; k < size; k++) {
