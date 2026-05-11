@@ -4,7 +4,7 @@
 #include "4x4constantsandstructs.h"
 
 // printing board in terminal for user to see
-void printBoard(Piece board[8][8]);
+void printBoard();
 
 // printing all info in table
 void printLegalMoves();

@@ -32,7 +32,7 @@ static const int EN_PASSANT = -4;
 static const int WHITE = 1;
 static const int BLACK = 0;
 
-static const int BOARDSIZE = 4;
+#define BOARDSIZE 4
 
 static const Piece empty = {false, -1, -1, 'z', '_', NULL};
 

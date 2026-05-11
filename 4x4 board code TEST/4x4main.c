@@ -54,15 +54,22 @@ Piece board[BOARDSIZE][BOARDSIZE];
 
 int main() {
   // setting up board & list of pieces
-  setupfunction();
+  testKingSide();
+
+  int colour = WHITE;
+
+  for (int i = 0; i < BOARDSIZE; i++) {
+    for (int j = 0; j < BOARDSIZE; j++) {
+      changeAvailableMoves(&board[i][j], colour);
+    }
+  }
 
   printf("We are setting up before crashing\n");
 
-  int colour = WHITE;
   bool haveMove = true;
 
   // print initial board and legal moves
-  printBoard(board);
+  printBoard();
   printLegalMoves();
 
   // if there is a legal move to be made
@@ -102,7 +109,7 @@ int main() {
       }
     }
     printLegalMoves();
-    printBoard(board);
+    printBoard();
 
     if (colour == WHITE) {
       colour = BLACK;

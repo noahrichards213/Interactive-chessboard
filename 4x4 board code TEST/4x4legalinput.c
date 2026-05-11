@@ -21,7 +21,7 @@ Piece legalSource(char file, int rank, int colour) {
     }
   }
   printf("file: %c, rank: %c\n", file, rank);
-  printBoard(board);
+  printBoard();
 
   return empty;
 }

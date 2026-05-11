@@ -5,13 +5,13 @@
 
 //we can test captures by putting ally and enemy piece on same board
 void testPawn();
-void testRook();
 void testKnight();
 void testBishop();
 void testQueen();
-void testKing();
 
-void testCastle();
-void testPromotion();
-void testEnPassant();
+void testKingSide();
+void testQueenSide();
+
+void blankSquares();
+
 #endif

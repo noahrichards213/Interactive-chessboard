@@ -5,7 +5,7 @@
 
 extern Piece board[BOARDSIZE][BOARDSIZE];
 
-void printBoard(Piece board[BOARDSIZE][BOARDSIZE]) {
+void printBoard() {
   for (int i = 0; i < BOARDSIZE; i++) {
     for (int j = 0; j < BOARDSIZE; j++) {
       printf("%c", board[i][j].type);

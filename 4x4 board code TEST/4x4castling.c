@@ -24,7 +24,7 @@ void executeCastling(int castlingMove) {
     typeRook = 'R';
   } else if (castlingMove == BLACKKINGCASTLE ||
              castlingMove == BLACKQUEENCASTLE) {
-    rank = 8;
+    rank = BOARDSIZE;
     colour = BLACK;
     typeKing = 'k';
     typeRook = 'r';

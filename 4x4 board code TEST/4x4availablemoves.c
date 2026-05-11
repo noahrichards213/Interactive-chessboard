@@ -224,18 +224,18 @@ int* pawnMoves(Piece piece) {
     if (board[(BOARDSIZE - rank) + normDir][(file - 97) - 1].colour != colour &&
         board[(BOARDSIZE - rank) + normDir][(file - 97) - 1].type != '_') {
       //-97 to manipulaet ascii value
-      allMoves[index] = ((8 - rank) + normDir) * 10 + ((file - 97) - 1);
+      allMoves[index] = ((BOARDSIZE - rank) + normDir) * 10 + ((file - 97) - 1);
       index++;
     }
   }
 
   // for right capture
   if ((file + 1) <= 'h') {
-    if (board[(8 - rank) + normDir][(file - 97) + 1].colour != colour &&
-        board[(8 - rank) + normDir][(file - 97) + 1].type != '_') {
+    if (board[(BOARDSIZE - rank) + normDir][(file - 97) + 1].colour != colour &&
+        board[(BOARDSIZE - rank) + normDir][(file - 97) + 1].type != '_') {
       //-97 to manipulaet ascii value
 
-      allMoves[index] = ((8 - rank) + normDir) * 10 + ((file - 97) + 1);
+      allMoves[index] = ((BOARDSIZE - rank) + normDir) * 10 + ((file - 97) + 1);
       index++;
     }
   }
@@ -298,7 +298,7 @@ int* kingMoves(Piece piece) {
 
   int i = 1;
   while (i <= 2 && kingEmptySquares == true) {
-    if (board[8 - rank][(file - 97) + i].type != '_') {
+    if (board[BOARDSIZE - rank][(file - 97) + i].type != '_') {
       kingEmptySquares = false;
     }
     i++;
