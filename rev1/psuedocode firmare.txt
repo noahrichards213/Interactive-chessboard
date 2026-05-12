@@ -51,7 +51,8 @@ Two possible scenariors.
 if (we are moving piece to empty square)
 
 
-// WE MUST MAKE AVAILABLE MOVES THAT CAPTURES NEGATIVE IN THE MAIN PROGRAM TO DETECT THIS
+// WE MUST MAKE AVAILABLE MOVES THAT CAPTURES NEGATIVE IN THE MAIN PROGRAM TO DETECT THIS (e.g -100 for all, they wouldn't interfere w/ the other negative flags)
+
 if (we are capturing an enemy piece)
 
 	differentl protocol for en passant
