@@ -1,0 +1,63 @@
+// to handle mechanics of picking up and placing down pieces
+
+//setup board (e.g rank 1, 2, 7, 8 being detected by hall effect, the others not)
+//map board[][] pieces to registers on the MCP, put all these in an array for easy access
+
+e.g volatile MCP1pin1 = board[1][1];
+e.g volatile MCP1pin2 = board[0][1];
+e.g volatile MCP1pin3 = empty;
+
+
+
+while (1)
+
+//look at all the registers
+
+//we know that 
+if (register_x is LOW && the corresponding variable up top is HIGH);
+
+ //now we have to change our tacked state to empty
+ MCPpinX = empty;
+ execute liftedPiece(register_x);
+
+(repeat for all registers that map to pieces, use readMCP program);
+
+
+
+
+
+}
+
+liftedPiece(register_x){};
+
+//we can access the piece available moves via the array index, which we can get from the registers (figure out the calculation)
+
+Two possible scenarios.
+
+if (piece has no available moves){
+
+//while the register we are looking at is not HIGH again (we put it back), we stall here
+while (registers_x is not HIGH);
+
+if (piece has available moves){
+ executeMovePiece();
+}
+
+
+executeMovePiece(){};
+
+Two possible scenariors.
+
+if (we are moving piece to empty square)
+
+
+// WE MUST MAKE AVAILABLE MOVES THAT CAPTURES NEGATIVE IN THE MAIN PROGRAM TO DETECT THIS
+if (we are capturing an enemy piece)
+
+	differentl protocol for en passant
+
+
+if (we are castling)
+
+
+if (we are promoting)

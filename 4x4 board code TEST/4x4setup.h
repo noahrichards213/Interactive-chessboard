@@ -12,6 +12,6 @@ void testQueen();
 void testKingSide();
 void testQueenSide();
 
-void blankSquares();
+void initialBoard();
 
 #endif

@@ -15,7 +15,7 @@ Piece legalSource(char file, int rank, int colour) {
     for (int j = 0; j < BOARDSIZE; j++) {
       // if rank, file, and colour match
       if (board[i][j].rank == rank && board[i][j].file == file &&
-          board[i][j].colour == colour) {
+          board[i][j].colour == colour) {            
         return board[i][j];
       }
     }
