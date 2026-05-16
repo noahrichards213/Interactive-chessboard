@@ -1,13 +1,19 @@
 // to handle mechanics of picking up and placing down pieces
 
 //setup board (e.g rank 1, 2, 7, 8 being detected by hall effect, the others not)
-//map board[][] pieces to registers on the MCP, put all these in an array for easy access
+//map board[][] pieces to registers on the MCP, put all of MCPxpinx in array for *ordered* access
 
 e.g volatile MCP1pin1 = board[1][1];
 e.g volatile MCP1pin2 = board[0][1];
 e.g volatile MCP1pin3 = empty;
 
+//NOTE: HOW DOES READING WORK FOR MCP, IF WE HAVE MULTIPLE OF THEM
+we initialize an MCP object by defining CS, MOSI, MISO, CLK pins
+then we call MCP_object.read1(pin#) // pin numbers are between 0 and 16
 
+//NOTE: HOW DOES WRITING WORK FOR MCP, IF WE HAVE MULTIPLE OF THEM
+we initialize an MCP object by defining CS, MOSI, MISO, and CLK pins, then we 
+call MCP_object.write1(pin#, value). the value is literally 1 for high or 0 for low
 
 while (1)
 
@@ -32,6 +38,9 @@ liftedPiece(register_x){};
 
 //we can access the piece available moves via the array index, which we can get from the registers (figure out the calculation)
 
+// how do we access register y and register x?
+// based on the square we are moving to, we can calculate the index for the MCP pin
+
 Two possible scenarios.
 
 if (piece has no available moves){
@@ -44,21 +53,31 @@ if (piece has available moves){
 }
 
 
-executeMovePiece(){};
+//implementation of executeMovePiece
+executeMovePiece(register_x){};
 
 Two possible scenariors.
 
-if (we are moving piece to empty square)
+if (reg y is empty (movee to empty square))){
+while (register y is empty and register x is full);	
+}
 
 
-// WE MUST MAKE AVAILABLE MOVES THAT CAPTURES NEGATIVE IN THE MAIN PROGRAM TO DETECT THIS (e.g -100 for all, they wouldn't interfere w/ the other negative flags)
+if (reg y is full (capturing piece){
+if (capture is enpassant)
+//we need these things to happen:
+1. reg_x goes from HIGH to LOW and reg_y goes from HIGH to LOW
 
-if (we are capturing an enemy piece)
-
-	differentl protocol for en passant
+while (reg_x !HIGH and reg_y !HIGH);
+2. reg_y goes from LOW TO HIGH
+while (reg_y !LOW);
+	
+}
 
 
 if (we are castling)
 
 
 if (we are promoting)
+
+
