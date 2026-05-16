@@ -3,9 +3,9 @@
 //setup board (e.g rank 1, 2, 7, 8 being detected by hall effect, the others not)
 //map board[][] pieces to registers on the MCP, put all of MCPxpinx in array for *ordered* access
 
-e.g volatile MCP1pin1 = board[1][1];
-e.g volatile MCP1pin2 = board[0][1];
-e.g volatile MCP1pin3 = empty;
+e.g volatile Piece MCP1pin1 = board[1][1];
+e.g volatile Piece MCP1pin2 = board[0][1];
+e.g volatile Piece MCP1pin3 = empty;
 
 //NOTE: HOW DOES READING WORK FOR MCP, IF WE HAVE MULTIPLE OF THEM
 we initialize an MCP object by defining CS, MOSI, MISO, CLK pins
@@ -14,6 +14,8 @@ then we call MCP_object.read1(pin#) // pin numbers are between 0 and 16
 //NOTE: HOW DOES WRITING WORK FOR MCP, IF WE HAVE MULTIPLE OF THEM
 we initialize an MCP object by defining CS, MOSI, MISO, and CLK pins, then we 
 call MCP_object.write1(pin#, value). the value is literally 1 for high or 0 for low
+
+//HOW ARE WE GOING TO PUT THE AVAILABLE MOVES INTO THE MCPPIN ARRAY? answer: each element in the array is a Piece object w/ the available moves array
 
 while (1)
 
@@ -58,26 +60,62 @@ executeMovePiece(register_x){};
 
 Two possible scenariors.
 
-if (reg y is empty (movee to empty square))){
+if (reg y is empty (move to empty square))){
+
+if (enpassant (check the move code)){
+while (register z (we can calculate index of this register) is empty (where we move), register y is full (where enemy pawn was), and register x is full (where ally pawn was)
+}
+
+else 
 while (register y is empty and register x is full);	
 }
 
 
 if (reg y is full (capturing piece){
-if (capture is enpassant)
-//we need these things to happen:
-1. reg_x goes from HIGH to LOW and reg_y goes from HIGH to LOW
 
+//we need these things to happen in order:
+1. reg_x goes from HIGH to LOW and reg_y goes from HIGH to LOW
 while (reg_x !HIGH and reg_y !HIGH);
+
 2. reg_y goes from LOW TO HIGH
 while (reg_y !LOW);
-	
 }
 
 
-if (we are castling)
+if (we are castling){
+ while (kingFrom reg and rookFrom reg FULL and kingTo reg and rookTo reg EMPTY);
+}
 
 
-if (we are promoting)
+if (we are promoting){
+if (reg y is empty (promotion w/ no capture){
+while (knightButton && bishopButton && rookButton && queenButton are all LOW);
+
+while (reg_x is HIGH and reg_y is LOW);
+if (knightButton is HIGH); 
+  newPiece.type = knight;
+if (bishopButton is HIGH);
+  newPiece.type = bishop;
+if (rookButton is HIGH);
+  newPiece.type = rook;
+if (queenButton is HIGH);
+  newPiece.type = queen;
+
+  create new promoted piece (code already exists in main program)
+ 
+  if (reg y is full)
+  //we need these things to happen in order:
+1. reg_x goes from HIGH to LOW and reg_y goes from HIGH to LOW
+while (reg_x !HIGH and reg_y !HIGH);
+
+2. reg_y goes from LOW TO HIGH
+while (reg_y !LOW);
+
+  else if (reg y is empty)
+  while (reg_x is HIGH and reg_y is EMPTY);
+  MCPxpinx = newPiece
+
+
+}
 
 
