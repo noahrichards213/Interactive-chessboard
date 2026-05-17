@@ -19,13 +19,14 @@ call MCP_object.write1(pin#, value). the value is literally 1 for high or 0 for 
 
 while (1)
 
-//look at all the registers
+//poll through all the registers
 
 //we know that 
 if (register_x is LOW && the corresponding variable up top is HIGH);
 
  //now we have to change our tacked state to empty
  MCPpinX = empty;
+ if (register_x.colour == colour)
  execute liftedPiece(register_x);
 
 (repeat for all registers that map to pieces, use readMCP program);
@@ -43,7 +44,7 @@ liftedPiece(register_x){};
 // how do we access register y and register x?
 // based on the square we are moving to, we can calculate the index for the MCP pin
 
-Two possible scenarios.
+two possible scenarios.
 
 if (piece has no available moves){
 
