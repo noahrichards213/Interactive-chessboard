@@ -10,11 +10,11 @@
 
 extern Piece board[BOARDSIZE][BOARDSIZE];
 
-int* rookMoves(Piece piece) {
-  int* left = checkOneDir(piece, -1, 0);
-  int* up = checkOneDir(piece, 0, 1);
-  int* right = checkOneDir(piece, 1, 0);
-  int* down = checkOneDir(piece, 0, -1);
+int* rookMoves(Piece* piece) {
+  int* left = checkOneDir(*piece, -1, 0);
+  int* up = checkOneDir(*piece, 0, 1);
+  int* right = checkOneDir(*piece, 1, 0);
+  int* down = checkOneDir(*piece, 0, -1);
 
   int leftSize = arraySize(left);
   int rightSize = arraySize(right);
@@ -23,10 +23,12 @@ int* rookMoves(Piece piece) {
 
   int totalSize = leftSize + rightSize + upSize + downSize;
 
+
   int* allMoves = malloc((totalSize + 1) * (sizeof(int)));
   if (allMoves == NULL) {
     printf("NULL");
   }
+  
   int index = 0;
 
   for (int i = 0; i < leftSize; i++, index++) {
@@ -46,14 +48,24 @@ int* rookMoves(Piece piece) {
   }
   allMoves[index] = -1;
 
+  free(left);
+  free(right);
+  free(up);
+  free(down);
+
+  left = NULL;
+  right = NULL;
+  up = NULL;
+  down = NULL;
+
   return allMoves;
 }
 
-int* bishopMoves(Piece piece) {
-  int* topRight = checkOneDir(piece, 1, 1);
-  int* topLeft = checkOneDir(piece, -1, 1);
-  int* bottomRight = checkOneDir(piece, 1, -1);
-  int* bottomLeft = checkOneDir(piece, -1, -1);
+int* bishopMoves(Piece* piece) {
+  int* topRight = checkOneDir(*piece, 1, 1);
+  int* topLeft = checkOneDir(*piece, -1, 1);
+  int* bottomRight = checkOneDir(*piece, 1, -1);
+  int* bottomLeft = checkOneDir(*piece, -1, -1);
 
   int topRightSize = arraySize(topRight);
   int topLeftSize = arraySize(topLeft);
@@ -85,10 +97,20 @@ int* bishopMoves(Piece piece) {
   }
   allMoves[index] = -1;
 
+  free(topLeft);
+  free(topRight);
+  free(bottomRight);
+  free(bottomLeft);
+
+  topLeft = NULL;
+  topRight = NULL;
+  bottomRight = NULL;
+  bottomLeft = NULL;
+
   return allMoves;
 }
 
-int* queenMoves(Piece piece) {
+int* queenMoves(Piece* piece) {
   int* movesFromRook = rookMoves(piece);
   int* movesFromBishop = bishopMoves(piece);
 
@@ -112,13 +134,19 @@ int* queenMoves(Piece piece) {
   }
   allMoves[index] = -1;
 
+  free(movesFromRook);
+  free(movesFromBishop);
+
+  movesFromRook = NULL;
+  movesFromBishop = NULL;
+
   return allMoves;
 }
 
-int* knightMoves(Piece piece) {
-  int rank = piece.rank;
-  char file = piece.file;
-  int colour = piece.colour;
+int* knightMoves(Piece* piece) {
+  int rank = piece->rank;
+  char file = piece->file;
+  int colour = piece->colour;
 
   // max # of moves knight can make = 8 + 1 for -1 terminator
   int capacityMoves = 9;
@@ -163,10 +191,10 @@ int* knightMoves(Piece piece) {
   return allMoves;
 }
 
-int* pawnMoves(Piece piece) {
-  int rank = piece.rank;
-  char file = piece.file;
-  int colour = piece.colour;
+int* pawnMoves(Piece* piece) {
+  int rank = piece->rank;
+  char file = piece->file;
+  int colour = piece->colour;
 
   // handles the fact that black and white pawns move in diff directions
   int dir;
@@ -179,7 +207,7 @@ int* pawnMoves(Piece piece) {
   }
 
   // handles the fact that pawns can move two squares only on move 1;
-  if (piece.hasMoved == false) {
+  if (piece->hasMoved == false) {
     dir *= 2;
   }
 
@@ -199,9 +227,9 @@ int* pawnMoves(Piece piece) {
 
   // store en passant move
   int enPassantMove = -1;
-  if (piece.availableMoves != NULL) {
-    if (piece.availableMoves[0] > 10000) {
-      enPassantMove = piece.availableMoves[0];
+  if (piece->availableMoves != NULL) {
+    if (piece->availableMoves[0] > 10000) {
+      enPassantMove = piece->availableMoves[0];
     }
   }
 
@@ -250,10 +278,10 @@ int* pawnMoves(Piece piece) {
   }
 }
 
-int* kingMoves(Piece piece) {
-  int rank = piece.rank;
-  char file = piece.file;
-  int colour = piece.colour;
+int* kingMoves(Piece* piece) {
+  int rank = piece->rank;
+  char file = piece->file;
+  int colour = piece->colour;
 
   // max king moves is 8 + 1 for -1 terminator
   int capacityMoves = 9;
@@ -281,7 +309,7 @@ int* kingMoves(Piece piece) {
   }
 
   // castling for the 4x4 is king and rook in the corner
-  if (piece.hasMoved == true) {
+  if (piece->hasMoved == true) {
     noCheckMoves[index] = -1;
     return noCheckMoves;
   }
@@ -325,9 +353,9 @@ int* kingMoves(Piece piece) {
 
   // kingside
   if (kingEmptySquares == true && hRookhasMoved == false) {
-    if (piece.colour == WHITE) {
+    if (piece->colour == WHITE) {
       noCheckMoves[index] = WHITEKINGCASTLE;
-    } else if (piece.colour == BLACK) {
+    } else if (piece->colour == BLACK) {
       noCheckMoves[index] = BLACKKINGCASTLE;
     }
     index++;
@@ -335,9 +363,9 @@ int* kingMoves(Piece piece) {
 
   // queenside
   if (queenEmptySquares == true && aRookhasMoved == false) {
-    if (piece.colour == WHITE) {
+    if (piece->colour == WHITE) {
       noCheckMoves[index] = WHITEQUEENCASTLE;
-    } else if (piece.colour == BLACK) {
+    } else if (piece->colour == BLACK) {
       noCheckMoves[index] = BLACKQUEENCASTLE;
     }
     index++;

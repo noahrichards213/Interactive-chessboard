@@ -5,27 +5,34 @@
 
 #include "4x4arraysize.h"
 #include "4x4availablemoves.h"
+#include "4x4printing.h"
 
 extern Piece board[BOARDSIZE][BOARDSIZE];
 
 // int colour is the colour whose turn it is not
-void changeAvailableMoves(Piece* piece, int colour) {
+void changeAvailableMoves(Piece* piece) {
   char type = piece->type;
 
+  free(piece->availableMoves);
+  piece->availableMoves = NULL;
 
   if (type == 'P' || type == 'p') {
-    piece->availableMoves = pawnMoves(*piece);
+    piece->availableMoves = pawnMoves(piece);
   } else if (type == 'R' || type == 'r') {
-    piece->availableMoves = rookMoves(*piece);
+    piece->availableMoves = rookMoves(piece);
   } else if (type == 'N' || type == 'n') {
-    piece->availableMoves = knightMoves(*piece);
+    piece->availableMoves = knightMoves(piece);
   } else if (type == 'B' || type == 'b') {
-    piece->availableMoves = bishopMoves(*piece);
+    piece->availableMoves = bishopMoves(piece);
   } else if (type == 'Q' || type == 'q') {
-    piece->availableMoves = queenMoves(*piece);
+    piece->availableMoves = queenMoves(piece);
   } else if (type == 'K' || type == 'k') {
-    piece->availableMoves = kingMoves(*piece);
+    piece->availableMoves = kingMoves(piece);
+  } else {
+    printf("WE SHOULD NOT BE HERE\n");
   }
+
+  return;
 }
 
 // checks to see if there is a legal move

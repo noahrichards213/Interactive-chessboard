@@ -8,8 +8,8 @@
       "args": [],
       "stopAtEntry": false,
       "externalConsole": true,
-      "cwd": "c:/Users/noahz/OneDrive/Desktop/Interactive-chessboard/Firmware files",
-      "program": "c:/Users/noahz/OneDrive/Desktop/Interactive-chessboard/Firmware files/build/Debug/outDebug",
+      "cwd": "c:/Users/noahz/OneDrive/Desktop/Interactive-chessboard/4x4 board code TEST",
+      "program": "c:/Users/noahz/OneDrive/Desktop/Interactive-chessboard/4x4 board code TEST/build/Debug/outDebug",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [

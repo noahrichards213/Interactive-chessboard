@@ -54,17 +54,18 @@ Piece board[BOARDSIZE][BOARDSIZE];
 
 int main() {
   // setting up board & list of pieces
+  blankSquares();
   testKingSide();
 
   int colour = WHITE;
 
   for (int i = 0; i < BOARDSIZE; i++) {
     for (int j = 0; j < BOARDSIZE; j++) {
-      changeAvailableMoves(&board[i][j], colour);
+      if (board[i][j].type != '_') {
+        changeAvailableMoves(&board[i][j]);
+      }
     }
   }
-
-  printf("We are setting up before crashing\n");
 
   bool haveMove = true;
 
@@ -76,11 +77,17 @@ int main() {
   while (haveMove) {
     makeMove(colour);
 
+    if (colour == WHITE) {
+      colour = BLACK;
+    } else if (colour == BLACK) {
+      colour = WHITE;
+    }
+
     // change legal moves
     for (int i = 0; i < BOARDSIZE; i++) {
       for (int j = 0; j < BOARDSIZE; j++) {
         if (board[i][j].type != '_') {
-          changeAvailableMoves(&board[i][j], colour);
+          changeAvailableMoves(&board[i][j]);
         }
       }
     }
@@ -89,33 +96,23 @@ int main() {
       for (int j = 0; j < BOARDSIZE; j++) {
         // first, we need to check every single move and see if it leads to
         // check (it then would be unallowed)
-        int size = arraySize(board[i][j].availableMoves);
-        for (int k = 0; k < size; k++) {
-          if (board[i][j].type != '_') {
+        if (board[i][j].colour == colour) {
+          for (int k = 0; k < arraySize(board[i][j].availableMoves); k++) {
+            printf("The size is :%d\n", arraySize(board[i][j].availableMoves));
+            printf("We are on k: %d\n", k);
             if (removeCheck(board[i][j], k, board[i][j].availableMoves[k]) ==
                 true) {
-              if (board[i][j].type == 'n') {
-                printf("The piece was: %c\n", board[i][j].type);
-                printf("These are its legal moves:\n");
-                for (int p = 0; p < arraySize(board[i][j].availableMoves);
-                     p++) {
-                  printf("%d", board[i][j].availableMoves[p]);
-                }
-              }
               board[i][j].availableMoves[k] = ALLOWSCHECK;
+              printf("WE ARE ALLOWING CHECK\n");
             }
           }
         }
       }
     }
+
     printLegalMoves();
     printBoard();
 
-    if (colour == WHITE) {
-      colour = BLACK;
-    } else if (colour == BLACK) {
-      colour = WHITE;
-    }
     haveMove = checkLegalMoves(colour);
   }
 

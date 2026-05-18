@@ -11,6 +11,7 @@ extern Piece board[BOARDSIZE][BOARDSIZE];
 void blankSquares() {
   for (int i = 0; i < BOARDSIZE; i++) {
     for (int j = 0; j < BOARDSIZE; j++) {
+      board[i][j] = empty;
     }
   }
 }
@@ -67,7 +68,7 @@ void testKingSide() {
   Piece K1 = {false, WHITE, 1, 'a', 'K', NULL};
   Piece R1 = {false, WHITE, 1, 'd', 'R', NULL};
   Piece k1 = {false, BLACK, 4, 'a', 'k', NULL};
-  Piece r1 = {false, BLACK, 4, 'd', 'R', NULL};
+  Piece r1 = {false, BLACK, 4, 'd', 'r', NULL};
 
   board[3][0] = K1;
   board[3][3] = R1;
@@ -80,7 +81,7 @@ void testQueenSide() {
   Piece K2 = {false, WHITE, 1, 'd', 'K', NULL};
   Piece R2 = {false, WHITE, 1, 'a', 'R', NULL};
   Piece k2 = {false, BLACK, 4, 'd', 'k', NULL};
-  Piece r2 = {false, BLACK, 4, 'a', 'R', NULL};
+  Piece r2 = {false, BLACK, 4, 'a', 'r', NULL};
 
   board[3][3] = K2;
   board[3][0] = R2;

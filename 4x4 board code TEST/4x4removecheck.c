@@ -1,5 +1,8 @@
 #include "4x4removecheck.h"
 
+#include <stdbool.h>
+#include <stdlib.h>
+
 #include "4x4arraysize.h"
 #include "4x4findkingsquare.h"
 #include "4x4legalmoveandcapture.h"
@@ -10,12 +13,29 @@ extern Piece board[BOARDSIZE][BOARDSIZE];
 // finding the kingSquare
 
 bool removeCheck(Piece piece, int availableMoveIndex, int testedMove) {
+  printf("We ar emaking it to start\n");
   int kingSquare;
 
   Piece prevBoard[BOARDSIZE][BOARDSIZE];
+
+  // need to create deep copy
   for (int i = 0; i < BOARDSIZE; i++) {
     for (int j = 0; j < BOARDSIZE; j++) {
-      prevBoard[i][j] = board[i][j];
+      if (board[i][j].type != '_') {
+        int* deepMoves = malloc(sizeof(int) * 30);
+        if (deepMoves == NULL) {
+          printf("failed to allocate");
+        }
+        for (int k = 0; k <= arraySize(board[i][j].availableMoves); k++) {
+          deepMoves[k] = board[i][j].availableMoves[k];
+        }
+        Piece deepCopy = {board[i][j].hasMoved, board[i][j].colour,
+                          board[i][j].rank,     board[i][j].file,
+                          board[i][j].type,     deepMoves};
+        prevBoard[i][j] = deepCopy;
+      } else {
+        prevBoard[i][j] = board[i][j];
+      }
     }
   }
 
@@ -31,7 +51,7 @@ bool removeCheck(Piece piece, int availableMoveIndex, int testedMove) {
     move /= 100;
   }
 
-  //still applies for 4x4 board, pawns will start on first rank
+  // still applies for 4x4 board, pawns will start on first rank
   if (move > 10000) {
     move /= 1000;
   }
@@ -39,41 +59,37 @@ bool removeCheck(Piece piece, int availableMoveIndex, int testedMove) {
   rankNew = move / 10;
   fileNew = move % 10;
 
-  board[rankNew][fileNew] = board[(BOARDSIZE - piece.rank)][(piece.file - 97)];
-  board[(BOARDSIZE - piece.rank)][(piece.file - 97)] = empty;
+  prevBoard[rankNew][fileNew] =
+      prevBoard[(BOARDSIZE - piece.rank)][(piece.file - 97)];
+  prevBoard[(BOARDSIZE - piece.rank)][(piece.file - 97)] = empty;
 
-  
-  kingSquare = findKingSquare(piece.colour);
+  kingSquare = findKingSquare(pieceColour);
 
   for (int i = 0; i < BOARDSIZE; i++) {
     for (int j = 0; j < BOARDSIZE; j++) {
-      if (board[i][j].type != '_') {
-        if (board[i][j].colour == oppositeColour) {
-          // pieceColour is the turn that it is not, because we are moving the
-          // other colour for hypothetical
-          changeAvailableMoves(&board[i][j], pieceColour);
-          int size = arraySize(board[i][j].availableMoves);
+      if (prevBoard[i][j].type != '_') {
+        if (prevBoard[i][j].colour == oppositeColour) {
+          printf("We are making it right before\n");
+          changeAvailableMoves(&prevBoard[i][j]);
+          printf("We are making it right after\n");
 
-          for (int k = 0; k < size; k++) {
-            if (board[i][j].availableMoves[k] == kingSquare) {
-              for (int l = 0; l < BOARDSIZE; l++) {
-                for (int m = 0; m < BOARDSIZE; m++) {
-                  board[l][m] = prevBoard[l][m];
-                }
-              }
+          for (int k = 0; k < arraySize(prevBoard[i][j].availableMoves); k++) {
+            if (prevBoard[i][j].availableMoves[k] == kingSquare) {
+              printf("We are making it here true\n");
 
               return true;
-            } 
+            } else {
+              printf("the move was: %d\n", prevBoard[i][j].availableMoves[k]);
+              printf("the piece was: %c\n", prevBoard[i][j].type); 
+              printf("king square was: %d\n", kingSquare);
+            }
           }
         }
       }
     }
   }
 
-  for (int l = 0; l < BOARDSIZE; l++) {
-    for (int m = 0; m < BOARDSIZE; m++) {
-      board[l][m] = prevBoard[l][m];
-    }
-  }
+  printf("We are making it here false\n");
+
   return false;
 }
