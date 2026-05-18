@@ -54,7 +54,6 @@ Piece board[BOARDSIZE][BOARDSIZE];
 
 int main() {
   // setting up board & list of pieces
-  initialBoard();
   testKingSide();
 
   int colour = WHITE;

@@ -8,15 +8,12 @@
 
 extern Piece board[BOARDSIZE][BOARDSIZE];
 
-void initialBoard() {
-  for (int i = 0; i < BOARDSIZE; i++){
-    for (int j = 0; j < BOARDSIZE; j++){
-      board[i][j] = empty;
+void blankSquares() {
+  for (int i = 0; i < BOARDSIZE; i++) {
+    for (int j = 0; j < BOARDSIZE; j++) {
     }
   }
-  return;
 }
-
 
 void testPawn() {
   Piece P1 = {false, WHITE, 1, 'b', 'P', NULL};
@@ -70,7 +67,7 @@ void testKingSide() {
   Piece K1 = {false, WHITE, 1, 'a', 'K', NULL};
   Piece R1 = {false, WHITE, 1, 'd', 'R', NULL};
   Piece k1 = {false, BLACK, 4, 'a', 'k', NULL};
-  Piece r1 = {false, BLACK, 4, 'd', 'r', NULL};
+  Piece r1 = {false, BLACK, 4, 'd', 'R', NULL};
 
   board[3][0] = K1;
   board[3][3] = R1;
@@ -83,12 +80,12 @@ void testQueenSide() {
   Piece K2 = {false, WHITE, 1, 'd', 'K', NULL};
   Piece R2 = {false, WHITE, 1, 'a', 'R', NULL};
   Piece k2 = {false, BLACK, 4, 'd', 'k', NULL};
-  Piece r2 = {false, BLACK, 4, 'a', 'r', NULL};
+  Piece r2 = {false, BLACK, 4, 'a', 'R', NULL};
 
   board[3][3] = K2;
   board[3][0] = R2;
   board[0][3] = k2;
-  board[0][0] = r2; 
+  board[0][0] = r2;
   return;
 }
 

@@ -56,7 +56,7 @@ bool throughCheck(int castle, int colour) {
   }
 
   for (int i = 0; i < BOARDSIZE; i++) {
-    for (int j = 0; j < BOARDSIZE; j++) {
+    for (int j = 0; i < BOARDSIZE; j++) {
       if (board[i][j].colour != colour && board[i][j].type != '_') {
         int betweenSize = arraySize(board[i][j].availableMoves);
         for (int k = 0; i < betweenSize; k++) {
