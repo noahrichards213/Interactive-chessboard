@@ -17,42 +17,74 @@ call MCP_object.write1(pin#, value). the value is literally 1 for high or 0 for 
 
 //HOW ARE WE GOING TO PUT THE AVAILABLE MOVES INTO THE MCPPIN ARRAY? answer: each element in the array is a Piece object w/ the available moves array
 
+//CALCULATION FOR THE 4X4 BOARD, HOW ARE THE PIECES GOING TO BE ORDERED
+index number on the left
+
+//MCP_1
+0: board[0][0]
+1: board[1][0]
+2: board[2][0]
+3: board[3][0]
+4: board[0][1]
+5: board[1][1]
+6: board[2][1]
+7: board[3][1]
+
+//MCP_2
+8: board[0][2]
+9: board[1][2]
+10: board[2][2]
+11: board[3][2]
+12: board[0][3]
+13: board[1][3]
+14: board[2][3]
+15: board[3][3]
+
+
+//read function b/c we have two MCP's
+
+int read_MCP(int index){
+if (index < 8){
+ return MCP_1.read1(i);
+} else if (index > 8){
+ return MCP_2.read1(i - 8);
+}
+
+}
+
 while (1)
 
-//look at all the registers
+//poll all registers as such:
 
-//we know that 
-if (register_x is LOW && the corresponding variable up top is HIGH);
+for (int i = 0; i < BOARDSIZE * BOARDSIZE; i++){
 
- //now we have to change our tacked state to empty
- MCPpinX = empty;
- execute liftedPiece(register_x);
-
-(repeat for all registers that map to pieces, use readMCP program);
-
-
+if (i < 8){
+int value = MCP_1.readMCP(i)
+if (value != array[i]){
+MCPpinX = empty;
+executeliftedPiece(i)
+}
 
 
 
 }
 
-liftedPiece(register_x){};
+//implementation of liftedPiece
+liftedPiece(int index){};
 
-//we can access the piece available moves via the array index, which we can get from the registers (figure out the calculation)
 
 // how do we access register y and register x?
 // based on the square we are moving to, we can calculate the index for the MCP pin
 
-Two possible scenarios.
+Two possible scenarios:
 
-if (piece has no available moves){
-
-//while the register we are looking at is not HIGH again (we put it back), we stall here
-while (registers_x is not HIGH);
-
-if (piece has available moves){
- executeMovePiece();
+//we are stalling here beause there are no legal moves
+if (arraySize(array[i].availableMoves == 0){
+ while (readMCP(i) != 0);
+} else {
+ executeMovePiece(i);
 }
+
 
 
 //implementation of executeMovePiece
