@@ -33,15 +33,11 @@ void addEnPassant(Piece piece, int rank, char file) {
   // old rank - new rank
   int difference = abs(piece.rank - rank);
 
-  printf("this is the difference: %d\n", difference);
-
   // if pawn did not move two squares then we don't need this function
   if (difference != 2) {
     printf("We did return\n");
     return;
   }
-
-  printf("We didn't return\n");
 
   // white is 1, black is 0
   enemyPawn = colour ? 'p' : 'P';
@@ -54,24 +50,34 @@ void addEnPassant(Piece piece, int rank, char file) {
   int boardRank = BOARDSIZE - rank;
   int boardFile = file - 97;
 
-  // only one en passant move is possible per turn per peace
+  // only one en passant move is possible per turn per piece
   int capacityMoves = 1;
   int* enPassantMove = malloc(sizeof(int) * capacityMoves);
 
+  int boardDir;
+  if (colour == WHITE) {
+    // rank decreases as pawns move up
+    boardDir = 1;
+  } else if (colour == BLACK) {
+    // rank increases as pawns move down
+    boardDir = -1;
+  }
   // this is immediately recognized and deal with in change avialable moves
   if (board[boardRank][boardFile - 1].type == enemyPawn) {
     // creating en passant array move
     //  multiples the enpassant square by 1000 to differentiate from reg move
-    enPassantMove[0] = (boardRank * 10 + (boardFile)) * 1000;
+    enPassantMove[0] = ((boardRank + boardDir) * 10 + (boardFile)) * 1000;
     board[boardRank][boardFile - 1].availableMoves = enPassantMove;
   }
 
   if (board[boardRank][boardFile + 1].type == enemyPawn) {
     // creating en passant array move
     //  multiples the enpassant square by 1000 to differentiate from reg move
-    enPassantMove[0] = (boardRank * 10 + (boardFile)) * 1000;
+    enPassantMove[0] = ((boardRank + boardDir) * 10 + (boardFile)) * 1000;
     board[boardRank][boardFile + 1].availableMoves = enPassantMove;
   }
+
+  printf("We are unlocking en passant\n");
 
   return;
 }

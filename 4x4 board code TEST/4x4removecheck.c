@@ -10,11 +10,7 @@
 
 extern Piece board[BOARDSIZE][BOARDSIZE];
 
-// finding the kingSquare
-
 bool removeCheck(Piece piece, int availableMoveIndex, int testedMove) {
-  printf("We ar emaking it to start\n");
-  int kingSquare;
 
   Piece prevBoard[BOARDSIZE][BOARDSIZE];
 
@@ -63,25 +59,35 @@ bool removeCheck(Piece piece, int availableMoveIndex, int testedMove) {
       prevBoard[(BOARDSIZE - piece.rank)][(piece.file - 97)];
   prevBoard[(BOARDSIZE - piece.rank)][(piece.file - 97)] = empty;
 
-  kingSquare = findKingSquare(pieceColour);
+  int kingSquare = -1;
+  char kingCharacter = pieceColour == WHITE ? 'K' : 'k';
+
+  for (int i = 0; i < BOARDSIZE; i++) {
+    for (int j = 0; j < BOARDSIZE && kingSquare == -1; j++) {
+      if (prevBoard[i][j].type == kingCharacter) {
+        kingSquare = (i * 10) + j;
+      }
+    }
+  }
+
 
   for (int i = 0; i < BOARDSIZE; i++) {
     for (int j = 0; j < BOARDSIZE; j++) {
       if (prevBoard[i][j].type != '_') {
         if (prevBoard[i][j].colour == oppositeColour) {
-          printf("We are making it right before\n");
           changeAvailableMoves(&prevBoard[i][j]);
-          printf("We are making it right after\n");
 
           for (int k = 0; k < arraySize(prevBoard[i][j].availableMoves); k++) {
             if (prevBoard[i][j].availableMoves[k] == kingSquare) {
-              printf("We are making it here true\n");
-
+              for (int m = 0; m < BOARDSIZE; m++) {
+                for (int l = 0; l < BOARDSIZE; l++) {
+                  if (prevBoard[m][l].type != '_') {
+                    free(prevBoard[m][l].availableMoves);
+                    prevBoard[m][l].availableMoves = NULL;
+                  }
+                }
+              }
               return true;
-            } else {
-              printf("the move was: %d\n", prevBoard[i][j].availableMoves[k]);
-              printf("the piece was: %c\n", prevBoard[i][j].type); 
-              printf("king square was: %d\n", kingSquare);
             }
           }
         }
@@ -89,7 +95,13 @@ bool removeCheck(Piece piece, int availableMoveIndex, int testedMove) {
     }
   }
 
-  printf("We are making it here false\n");
-
+  for (int o = 0; o < BOARDSIZE; o++) {
+    for (int p = 0; p < BOARDSIZE; p++) {
+      if (prevBoard[o][p].type != '_') {
+        free(prevBoard[o][p].availableMoves);
+        prevBoard[o][p].availableMoves = NULL;
+      }
+    }
+  }
   return false;
 }

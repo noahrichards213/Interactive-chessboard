@@ -115,6 +115,21 @@ void makeMove(int colour) {
 
   board[BOARDSIZE - rankSource][fileSource - 97] = empty;
 
+  // here we remove the enemy pawn if the move is en passant (won't remove
+  // regularly)
+
+  if (yesDest >= 10000) {
+    int boardDir;
+    if (colour == WHITE) {
+      // rank decreases as pawns move up
+      boardDir = 1;
+    } else if (colour == BLACK) {
+      // rank increases as pawns move down
+      boardDir = -1;
+    }
+    board[BOARDSIZE - rankDest + boardDir][fileDest - 97] = empty;
+    printf("WE ARE ARRIVING HERE\n");
+  }
   // here we check if we need too add en passant (kind of weird with one
   // condition in each function but whatever, can fix later)
   if (sourcePiece.type == 'P' || sourcePiece.type == 'p') {

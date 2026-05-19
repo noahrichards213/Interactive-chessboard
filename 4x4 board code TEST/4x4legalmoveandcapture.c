@@ -13,8 +13,11 @@ extern Piece board[BOARDSIZE][BOARDSIZE];
 void changeAvailableMoves(Piece* piece) {
   char type = piece->type;
 
-  free(piece->availableMoves);
-  piece->availableMoves = NULL;
+  // we don't want to remove en passant move
+  if (type != 'P' && type != 'p') {
+    free(piece->availableMoves);
+    piece->availableMoves = NULL;
+  }
 
   if (type == 'P' || type == 'p') {
     piece->availableMoves = pawnMoves(piece);
@@ -43,8 +46,6 @@ bool checkLegalMoves(int turn) {
         int size = arraySize(board[i][j].availableMoves);
         for (int k = 0; k < size; k++) {
           if (board[i][j].availableMoves[k] > 0) {
-            printf("This was the was piece: %c\n", board[i][j].type);
-            printf("This was the move: %d\n", board[i][j].availableMoves[k]);
             return true;
           }
         }

@@ -19,13 +19,21 @@ void blankSquares() {
 void testPawn() {
   Piece P1 = {false, WHITE, 1, 'b', 'P', NULL};
   Piece P2 = {false, WHITE, 1, 'c', 'P', NULL};
+  Piece P3 = {false, WHITE, 1, 'a', 'P', NULL};
+  Piece P4 = {false, WHITE, 1, 'd', 'P', NULL};
   Piece p1 = {false, BLACK, 4, 'b', 'p', NULL};
   Piece p2 = {false, BLACK, 4, 'c', 'p', NULL};
+  Piece p3 = {false, BLACK, 4, 'a', 'p', NULL};
+  Piece p4 = {false, BLACK, 4, 'd', 'p', NULL};
 
   board[3][1] = P1;
   board[3][2] = P2;
+  board[3][0] = P3;
+  board[3][3] = P4;
+  board[0][0] = p3;
   board[0][1] = p1;
   board[0][2] = p2;
+  board[0][3] = p4;
   return;
 }
 
@@ -89,4 +97,3 @@ void testQueenSide() {
   board[0][0] = r2;
   return;
 }
-

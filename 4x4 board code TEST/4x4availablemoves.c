@@ -28,7 +28,7 @@ int* rookMoves(Piece* piece) {
   if (allMoves == NULL) {
     printf("NULL");
   }
-  
+
   int index = 0;
 
   for (int i = 0; i < leftSize; i++, index++) {
@@ -192,9 +192,11 @@ int* knightMoves(Piece* piece) {
 }
 
 int* pawnMoves(Piece* piece) {
+
   int rank = piece->rank;
   char file = piece->file;
   int colour = piece->colour;
+  
 
   // handles the fact that black and white pawns move in diff directions
   int dir;
@@ -229,7 +231,10 @@ int* pawnMoves(Piece* piece) {
   int enPassantMove = -1;
   if (piece->availableMoves != NULL) {
     if (piece->availableMoves[0] > 10000) {
+      printf("We are getting here\n");
       enPassantMove = piece->availableMoves[0];
+      free(piece -> availableMoves);
+      piece -> availableMoves = NULL;
     }
   }
 
@@ -258,7 +263,7 @@ int* pawnMoves(Piece* piece) {
   }
 
   // for right capture
-  if ((file + 1) <= 'h') {
+  if ((file + 1) < 'a' + BOARDSIZE) {
     if (board[(BOARDSIZE - rank) + normDir][(file - 97) + 1].colour != colour &&
         board[(BOARDSIZE - rank) + normDir][(file - 97) + 1].type != '_') {
       //-97 to manipulaet ascii value

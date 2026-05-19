@@ -55,7 +55,7 @@ Piece board[BOARDSIZE][BOARDSIZE];
 int main() {
   // setting up board & list of pieces
   blankSquares();
-  testKingSide();
+  testPawn();
 
   int colour = WHITE;
 
@@ -98,12 +98,9 @@ int main() {
         // check (it then would be unallowed)
         if (board[i][j].colour == colour) {
           for (int k = 0; k < arraySize(board[i][j].availableMoves); k++) {
-            printf("The size is :%d\n", arraySize(board[i][j].availableMoves));
-            printf("We are on k: %d\n", k);
             if (removeCheck(board[i][j], k, board[i][j].availableMoves[k]) ==
                 true) {
               board[i][j].availableMoves[k] = ALLOWSCHECK;
-              printf("WE ARE ALLOWING CHECK\n");
             }
           }
         }
