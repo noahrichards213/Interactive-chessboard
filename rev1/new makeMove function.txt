@@ -13,70 +13,183 @@
 #include "4x4promotion.h"
 extern Piece board[BOARDSIZE][BOARDSIZE];
 
-//everything must go except for the actual changing of the board
+//everything must go except for the actual changing of board[][]
 //we also don't need to check for legal input
 
-//TODO: replace it line by line w the MCP code
+//we need a way to calculate board[i][j] based on array index
+
+we need: 
+
+int index_to_i(index)
+int i = 
+
+
+return i;
+
+int index_to_j(index)
+int j = 
+
+
+return j;
+
+
+
 
 void makeMove(int colour) {
-  char fileSource;
-  int rankSource;
-  Piece sourcePiece = empty;
+for (int i = 0; i < BOARDSIZE * BOARDSIZE; i++){
 
-  // determining if source move is legal
-  while (sourcePiece.type == '_') {
-    int c;
-    char bufferSource[3];
-    printf("This is the colour: %d\n", colour);
-    printf("Which piece?");
-    if (fgets(bufferSource, sizeof(bufferSource), stdin) != NULL) {
-      fileSource = bufferSource[0];
+if (i < 8){
+int value = MCP_1.readMCP(i)
+if (value != array[i]){
+MCPpinX = empty;
+moveMade = executeliftedPiece(i)
+}
 
-      // manipulating ascii value of '1', '2', '3', etc.
-      rankSource = (int)bufferSource[1] - 48;
+//after we execurte this, there are two special possible moves
+// we will assume that promotions are done by physically moving the pawn to the 8th
 
-      c = getchar();
+1. castling, we need to move the rook as well. we will hardcode all the values
+if (moveMade >= 100 && moveMade < 10000){
+  if (moveMade == WHITEKINGCASTLE){
+    while (read_MCP(WHITE_KINGSIDE_ROOK_START) == HIGH && read_MCP(WHITE_KINGSIDE_ROOK_END) == LOW);
+  }
+  else if (moveMade == BLACKKINGCASTLE)
+    while (read_MCP(BLACK_KINGSIDE_ROOK_START) == HIGH && read_MCP(BLACK_KINGSIDE_ROOK_END) == LOW);
+  else if (moveMade == WHITEQUEENCASTLE)
+    while (read_MCP(WHITE_QUEENSIDE_ROOK_START) == HIGH && read_MCP(BLACK_QUEENSIDE_ROOK_END) == LOW);
+  else if (moveMade == BLACKQUEENCASTLE)
+    while (read_MCP(BLACK_QUEENSIDE_ROOK_START) == HIGH && read_MCP(BLACK_QUEENSIDE_ROOK_END) == LOW);
 
-      sourcePiece = legalSource(fileSource, rankSource, colour);
-      if (sourcePiece.type == '_') {
-        printf("You do not have a piece there. Try again: ");
-        printf("Your colour is %d\n", colour);
-        printf("The type that you chose was %c\n",
-               board[BOARDSIZE - rankSource][fileSource - 97].type);
-      }
-    } else {
-      printf("Error with source input.");
-    }
+}
+
+2. enpassant, we need to remove the captured pawn
+
+if (moveMade > 10000){ 
+ //colour variable is from the main c program
+
+ //if it's a white enpassant, the captured piece is +1 index from where the capturing pawn ends up
+ //if it's a black en passant, the captured piece is -1 index form where the capturing pawn ends up
+ int indexChange = colour == WHITE ? 1 : -1
+
+ int removeEnPassant = moveMade / 1000;
+ int calculateIndex = ((removeEnPassant % 10) * 4 + (removeEnPassant - removeEnPassant % 10)/10) + indexCahnge
+ while(read_MCP(calculateIndex) == HIGH); 
+}
+
+//rest of code is here
+}
+
+//implementation of liftedPiece
+liftedPiece(int index){};
+
+
+// how do we access register y and register x?
+// based on the square we are moving to, we can calculate the index for the MCP pin
+
+Two possible scenarios:
+
+//we are stalling here beause there are no legal moves
+if (arraySize(array[index].availableMoves == 0){
+ while (readMCP(index) != 0);
+} else {
+ executeMovePiece(index);
+}
+
+//in each case
+
+//implementation of executeMovePiece
+int executeMovePiece(int index){};
+
+
+//when a move is made, one of two things will change: the destination square will go from HIGH to LOW (capture) or LOW TO HIGH (noncapture)
+
+//en passant, and castling are handled later
+int size = arraySize(array[index].availableMoves);
+int calculatedIndex;
+int desiredState;
+int state;
+bool stop = false;
+while (stop == false;){
+for (int i = 0; i < size; i++){
+  int moveMade = array[index].availableMoves[i];
+  int x = abs(array[index].availableMoves[i]);
+  if (x >= 100 & x < 10000){
+    x /= 100;
+  }
+  
+  if (x >= 10000){
+    x /= 1000;
+  }
+  calculatedIndex = (x % 10) * 4 + (x - x % 10)/10;
+  state = read_MCP(calculatedIndex);
+  desiredState = array[index].availableMoves[i] ? LOW: HIGH;
+
+  //meaning that the move wasn't a capture
+  if (desiredState == HIGH){
+     while(read_MCP(index) == HIGH || read_MCP(calculated_index) == LOW);
+     Piece pieceMoved = board[index_to_i(index)][index_to_j(index)];
+     board[index_to_i(calculatedIndex)][index_to_j(calculatedIndex)] = pieceMoved;
+     board[index_to_i(index)][index_to_j(index)] = empty;
+
+     return moveMade;
+  //meaning that the move was a capture
+  } else if (desiredState == LOW){
+     //taking piece off
+     while(read_MCP(calculatedIndex) == HIGH);
+     //replace piece;
+     while(read_MCP(index) == HIGH || read_MCP(calculated_index) == LOW);
+     //it's okay not to do a deep copy because are setting the original pointer to NULL instantly
+
+     Piece pieceMoved = board[index_to_i(index)][index_to_j(index)];
+     board[index_to_i(calculatedIndex)][index_to_j(calculatedIndex)] = pieceMoved;
+     board[index_to_i(index)][index_to_j(index)] = empty;
+
+     
+     return moveMade;
+
   }
 
-  char fileDest;
-  int rankDest;
-  int yesDest = -1;
 
-  // determing if dest move is legal
-  while (yesDest == -1) {
-    int c;
-    char bufferDest[3];
-    printf("To where?");
+}
+}
 
-    if (fgets(bufferDest, sizeof(bufferDest), stdin) != NULL) {
-      fileDest = bufferDest[0];
 
-      // manipulating ascii value of '1', '2', '3', etc.
-      rankDest = (int)bufferDest[1] - 48;
 
-      // to clear nextline character left in buffer
+if (we are castling){
+ while (kingFrom reg and rookFrom reg FULL and kingTo reg and rookTo reg EMPTY);
+}
 
-      c = getchar();
 
-      yesDest = legalDest(fileDest, rankDest, fileSource, rankSource, colour);
-      if (yesDest == -1) {
-        printf("That is not a legal move. Please try again.");
-      }
-    } else {
-      printf("Error with dest input.");
-    }
-  }
+if (we are promoting){
+if (reg y is empty (promotion w/ no capture){
+while (knightButton && bishopButton && rookButton && queenButton are all LOW);
+
+while (reg_x is HIGH and reg_y is LOW);
+if (knightButton is HIGH); 
+  newPiece.type = knight;
+if (bishopButton is HIGH);
+  newPiece.type = bishop;
+if (rookButton is HIGH);
+  newPiece.type = rook;
+if (queenButton is HIGH);
+  newPiece.type = queen;
+
+  create new promoted piece (code already exists in main program)
+ 
+  if (reg y is full)
+  //we need these things to happen in order:
+1. reg_x goes from HIGH to LOW and reg_y goes from HIGH to LOW
+while (reg_x !HIGH and reg_y !HIGH);
+
+2. reg_y goes from LOW TO HIGH
+while (reg_y !LOW);
+
+  else if (reg y is empty)
+  while (reg_x is HIGH and reg_y is EMPTY);
+  MCPxpinx = newPiece
+
+
+}
 
   // remove en passant moves if they weren't aleady made
   removeEnPassant();

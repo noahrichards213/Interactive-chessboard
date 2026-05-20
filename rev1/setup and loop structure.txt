@@ -1,0 +1,189 @@
+// including necessary default libraries
+#include <ctype.h>
+#include <math.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+// including header files
+
+// USEFUL FUNCTIONS
+
+// arraysize
+#include "4x4arraysize.h"
+
+// check one dir
+#include "4x4checkonedir.h"
+
+// availablemoves
+#include "4x4availablemoves.h"
+
+// END OF USEFUL FUNCTIONS
+
+// constants and piece data structure
+#include "4x4constantsandstructs.h"
+
+// functions for all legal moves
+#include "4x4availablemoves.h"
+
+// global board
+Piece board[BOARDSIZE][BOARDSIZE];
+
+// setup
+#include "4x4setup.h"
+
+// make move
+#include "4x4makemove.h"
+
+// printing things to console
+#include "4x4printing.h"
+
+// checking functions
+#include "4x4checking.h"
+
+// include legal move and capture functions
+#include "4x4legalmoveandcapture.h"
+
+// include en passant mechanics
+#include "4x4enpassant.h"
+
+// include function to remove illegal moves because it would leave player in
+// check
+#include "4x4removecheck.h"
+
+void setup()
+  // setting up board & list of pieces
+  blankSquares();
+  testPawn();
+
+  int colour = WHITE;
+
+  for (int i = 0; i < BOARDSIZE; i++) {
+    for (int j = 0; j < BOARDSIZE; j++) {
+      if (board[i][j].type != '_') {
+        changeAvailableMoves(&board[i][j]);
+      }
+    }
+  }
+
+// to handle mechanics of picking up and placing down pieces
+
+//setup board (e.g rank 1, 2, 7, 8 being detected by hall effect, the others not)
+//map board[][] pieces to registers on the MCP, put all of MCPxpinx in array for *ordered* access
+
+e.g volatile Piece MCP1pin1 = board[1][1];
+e.g volatile Piece MCP1pin2 = board[0][1];
+e.g volatile Piece MCP1pin3 = empty;
+
+//NOTE: HOW DOES READING WORK FOR MCP, IF WE HAVE MULTIPLE OF THEM
+we initialize an MCP object by defining CS, MOSI, MISO, CLK pins
+then we call MCP_object.read1(pin#) // pin numbers are between 0 and 16
+
+//NOTE: HOW DOES WRITING WORK FOR MCP, IF WE HAVE MULTIPLE OF THEM
+we initialize an MCP object by defining CS, MOSI, MISO, and CLK pins, then we 
+call MCP_object.write1(pin#, value). the value is literally 1 for high or 0 for low
+
+//HOW ARE WE GOING TO PUT THE AVAILABLE MOVES INTO THE MCPPIN ARRAY? answer: each element in the array is a Piece object w/ the available moves array
+#define WHITE KINGSIDE ROOK START 15 
+#define WHITE KINGSIDE ROOK END 7
+#define BLACK KINGSIDE ROOK START 12 
+#define BLACK KINGSIDE ROOK END 4
+
+#define WHITE QUEENSIDE ROOK START 3
+#define WHITE QUEENSIDE ROOK END 11
+#define BLACK QUEENSIDE ROOK START 0 
+#define BLACK QUEENSIDE ROOK END 8
+
+
+//CALCULATION FOR THE 4X4 BOARD, HOW ARE THE PIECES GOING TO BE ORDERED
+index number on the left
+
+//MCP_1
+0: board[0][0]
+1: board[1][0]
+2: board[2][0]
+3: board[3][0]
+4: board[0][1]
+5: board[1][1]
+6: board[2][1]
+7: board[3][1]
+
+//MCP_2
+8: board[0][2]
+9: board[1][2]
+10: board[2][2]
+11: board[3][2]
+12: board[0][3]
+13: board[1][3]
+14: board[2][3]
+15: board[3][3]
+
+
+//read function b/c we have two MCP's
+
+int read_MCP(int index){
+if (index < 8){
+ return MCP_1.read1(i);
+} else if (index > 8){
+ return MCP_2.read1(i - 8);
+}
+
+}
+
+void loop()
+
+  //need to rewrite haveMove to include the MCP stuff rather than tet
+  bool haveMove = true;
+
+  // print initial board and legal moves
+  printBoard();
+  printLegalMoves();
+
+  // if there is a legal move to be made
+  while (haveMove) {
+    makeMove(colour);
+
+    if (colour == WHITE) {
+      colour = BLACK;
+    } else if (colour == BLACK) {
+      colour = WHITE;
+    }
+
+    // change legal moves
+    for (int i = 0; i < BOARDSIZE; i++) {
+      for (int j = 0; j < BOARDSIZE; j++) {
+        if (board[i][j].type != '_') {
+          changeAvailableMoves(&board[i][j]);
+        }
+      }
+    }
+
+    for (int i = 0; i < BOARDSIZE; i++) {
+      for (int j = 0; j < BOARDSIZE; j++) {
+        // first, we need to check every single move and see if it leads to
+        // check (it then would be unallowed)
+        if (board[i][j].colour == colour) {
+          for (int k = 0; k < arraySize(board[i][j].availableMoves); k++) {
+            if (removeCheck(board[i][j], k, board[i][j].availableMoves[k]) ==
+                true) {
+              board[i][j].availableMoves[k] = ALLOWSCHECK;
+            }
+          }
+        }
+      }
+    }
+
+    printLegalMoves();
+    printBoard();
+
+    haveMove = checkLegalMoves(colour);
+  }
+
+  if (inCheck(colour)) {
+    printf("It's checkmate\n");
+  } else {
+    printf("It's stalemate\n");
+  }
+
+
