@@ -23,7 +23,6 @@ int* rookMoves(Piece* piece) {
 
   int totalSize = leftSize + rightSize + upSize + downSize;
 
-
   int* allMoves = malloc((totalSize + 1) * (sizeof(int)));
   if (allMoves == NULL) {
     printf("NULL");
@@ -166,21 +165,27 @@ int* knightMoves(Piece* piece) {
         addedFile = (file + 2 * i) - 97;
 
         // first square per corner
-        if (addedRank >= 0 && addedRank <= (BOARDSIZE - 1) && (addedFile - i) >= 0 &&
-            (addedFile - i) <= (BOARDSIZE - 1)) {
+        if (addedRank >= 0 && addedRank <= (BOARDSIZE - 1) &&
+            (addedFile - i) >= 0 && (addedFile - i) <= (BOARDSIZE - 1)) {
           if (board[addedRank][addedFile - i].type == '_' ||
               board[addedRank][addedFile - i].colour != colour) {
             allMoves[index] = addedRank * 10 + (addedFile - i);
             index++;
+            if (board[addedRank][addedFile].type != '_') {
+              allMoves[index] = (-1) * (allMoves[index]);
+            }
           }
         }
         // second square per corner
-        if ((addedRank + j) >= 0 && (addedRank + j) <= (BOARDSIZE - 1) && addedFile >= 0 &&
-            addedFile <= (BOARDSIZE - 1)) {
+        if ((addedRank + j) >= 0 && (addedRank + j) <= (BOARDSIZE - 1) &&
+            addedFile >= 0 && addedFile <= (BOARDSIZE - 1)) {
           if (board[addedRank + j][addedFile].type == '_' ||
               board[addedRank + j][addedFile].colour != colour) {
             allMoves[index] = (addedRank + j) * 10 + addedFile;
             index++;
+            if (board[addedRank][addedFile].type != '_') {
+              allMoves[index] = (-1) * (allMoves[index]);
+            }
           }
         }
       }
@@ -192,11 +197,9 @@ int* knightMoves(Piece* piece) {
 }
 
 int* pawnMoves(Piece* piece) {
-
   int rank = piece->rank;
   char file = piece->file;
   int colour = piece->colour;
-  
 
   // handles the fact that black and white pawns move in diff directions
   int dir;
@@ -233,8 +236,8 @@ int* pawnMoves(Piece* piece) {
     if (piece->availableMoves[0] > 10000) {
       printf("We are getting here\n");
       enPassantMove = piece->availableMoves[0];
-      free(piece -> availableMoves);
-      piece -> availableMoves = NULL;
+      free(piece->availableMoves);
+      piece->availableMoves = NULL;
     }
   }
 
@@ -257,7 +260,8 @@ int* pawnMoves(Piece* piece) {
     if (board[(BOARDSIZE - rank) + normDir][(file - 97) - 1].colour != colour &&
         board[(BOARDSIZE - rank) + normDir][(file - 97) - 1].type != '_') {
       //-97 to manipulaet ascii value
-      allMoves[index] = ((BOARDSIZE - rank) + normDir) * 10 + ((file - 97) - 1);
+      allMoves[index] =
+          (-1) * (((BOARDSIZE - rank) + normDir) * 10 + ((file - 97) - 1));
       index++;
     }
   }
@@ -268,7 +272,8 @@ int* pawnMoves(Piece* piece) {
         board[(BOARDSIZE - rank) + normDir][(file - 97) + 1].type != '_') {
       //-97 to manipulaet ascii value
 
-      allMoves[index] = ((BOARDSIZE - rank) + normDir) * 10 + ((file - 97) + 1);
+      allMoves[index] =
+          (-1) * (((BOARDSIZE - rank) + normDir) * 10 + ((file - 97) + 1));
       index++;
     }
   }
@@ -307,6 +312,9 @@ int* kingMoves(Piece* piece) {
               board[addedRank][addedFile].colour != colour) {
             noCheckMoves[index] = addedRank * 10 + addedFile;
             index++;
+            if (board[addedRank][addedFile].type != '_') {
+              noCheckMoves[index] = (-1) * (noCheckMoves[index]);
+            }
           }
         }
       }
@@ -324,9 +332,11 @@ int* kingMoves(Piece* piece) {
   bool kingEmptySquares = true;
 
   if (colour == WHITE) {
-    hRookhasMoved = (board[BOARDSIZE - 1][BOARDSIZE - 1].type != 'R' || board[BOARDSIZE - 1][BOARDSIZE - 1].hasMoved == true);
+    hRookhasMoved = (board[BOARDSIZE - 1][BOARDSIZE - 1].type != 'R' ||
+                     board[BOARDSIZE - 1][BOARDSIZE - 1].hasMoved == true);
   } else if (colour == BLACK) {
-    hRookhasMoved = (board[0][BOARDSIZE - 1].type != 'r' || board[0][BOARDSIZE - 1].hasMoved == true);
+    hRookhasMoved = (board[0][BOARDSIZE - 1].type != 'r' ||
+                     board[0][BOARDSIZE - 1].hasMoved == true);
   }
 
   int i = 1;
@@ -342,13 +352,15 @@ int* kingMoves(Piece* piece) {
   bool queenEmptySquares = true;
 
   if (colour == WHITE) {
-    aRookhasMoved = (board[BOARDSIZE - 1][0].type != 'R' || board[BOARDSIZE - 1][0].hasMoved == true);
+    aRookhasMoved = (board[BOARDSIZE - 1][0].type != 'R' ||
+                     board[BOARDSIZE - 1][0].hasMoved == true);
   } else if (colour == BLACK) {
     aRookhasMoved = (board[0][0].type != 'r' || board[0][0].hasMoved == true);
   }
 
   int j = 1;
-  //for queenside castling, king and rook in opposite corners (queenside only 2 squares between)
+  // for queenside castling, king and rook in opposite corners (queenside only 2
+  // squares between)
   while (j <= 2 && queenEmptySquares == true) {
     if (board[BOARDSIZE - rank][(file - 97) - j].type != '_') {
       queenEmptySquares = false;

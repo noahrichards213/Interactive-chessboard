@@ -23,7 +23,7 @@ void printLegalMoves() {
         int k = 0;
         if (board[i][j].availableMoves != NULL) {
           while (board[i][j].availableMoves[k] != -1) {
-            if (board[i][j].availableMoves[k] != -5) {
+            if (board[i][j].availableMoves[k] != ALLOWSCHECK) {
               int rankNew;
               int fileNew;
               if (board[i][j].availableMoves[k] < 100) {

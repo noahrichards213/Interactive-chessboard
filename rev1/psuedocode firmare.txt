@@ -79,39 +79,53 @@ liftedPiece(int index){};
 Two possible scenarios:
 
 //we are stalling here beause there are no legal moves
-if (arraySize(array[i].availableMoves == 0){
- while (readMCP(i) != 0);
+if (arraySize(array[index].availableMoves == 0){
+ while (readMCP(index) != 0);
 } else {
- executeMovePiece(i);
+ executeMovePiece(index);
 }
 
 
 
 //implementation of executeMovePiece
-executeMovePiece(register_x){};
+void executeMovePiece(int index){};
 
-Two possible scenariors.
 
-if (reg y is empty (move to empty square))){
+//when a move is made, one of two things will change: the destination square will go from HIGH to LOW (capture) or LOW TO HIGH (noncapture)
 
-if (enpassant (check the move code)){
-while (register z (we can calculate index of this register) is empty (where we move), register y is full (where enemy pawn was), and register x is full (where ally pawn was)
+//promotion, en passant, and castling are handled later
+int size = arraySize(array[index].availableMoves);
+int calculatedIndex;
+int desiredState;
+int state;
+bool stop = false;
+while (stop == false;){
+for (int i = 0; i < size; i++){
+  int x = abs(array[index].availableMoves[i]) % 10;
+  calculatedIndex = (x % 10) * 4 + (x - x % 10)/10;
+  state = read_MCP(calculatedIndex);
+  desiredState = array[index].availableMoves[i] ? LOW: HIGH;
+
+  //meaning that the move wasn't a capture
+  if (desiredState == HIGH){
+     while(read_MCP(index) == HIGH || read_MCP(calculated_index) == LOW);
+     // at this point, still need to account for possible promotions
+     return;
+  //meaning that the move was a capture
+  } else if (desiredState == LOW){
+
+     //taking piece off
+     while(read_MCP(calculatedIndex) == HIGH);
+     //replace piece;
+     while(read_MCP(index) == HIGH || read_MCP(calculated_index) == LOW)
+     return;
+
+  }
+
+
+}
 }
 
-else 
-while (register y is empty and register x is full);	
-}
-
-
-if (reg y is full (capturing piece){
-
-//we need these things to happen in order:
-1. reg_x goes from HIGH to LOW and reg_y goes from HIGH to LOW
-while (reg_x !HIGH and reg_y !HIGH);
-
-2. reg_y goes from LOW TO HIGH
-while (reg_y !LOW);
-}
 
 
 if (we are castling){

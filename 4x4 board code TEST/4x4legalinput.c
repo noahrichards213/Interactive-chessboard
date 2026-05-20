@@ -40,16 +40,22 @@ int legalDest(char fileDest, int rankDest, char fileSource, int rankSource,
         int matchingFile = fileDest - 97;
 
         for (int k = 0; k < size; k++) {
-          if (board[i][j].availableMoves[k] ==
+          if (board[i][j].availableMoves[k] < 0) {
+            printf("We got a capture\n");
+            printf("the move was: %d\n", board[i][j].availableMoves[k]);
+            printf("the absolute value is: %d",
+                   abs(board[i][j].availableMoves[k]));
+          }
+          if (abs(board[i][j].availableMoves[k]) ==
                   ((matchingRank * 10) + matchingFile) ||
               // to include castilng moves
-              board[i][j].availableMoves[k] ==
+              abs(board[i][j].availableMoves[k]) ==
                   ((matchingRank * 10) + matchingFile) * (100)
-            // to include en passant moves
-            || board[i][j].availableMoves[k] ==
-                    ((matchingRank * 10) + matchingFile) * (1000)) {
-              return board[i][j].availableMoves[k];
-            }
+              // to include en passant moves
+              || abs(board[i][j].availableMoves[k]) ==
+                     ((matchingRank * 10) + matchingFile) * (1000)) {
+            return board[i][j].availableMoves[k];
+          }
         }
       }
     }

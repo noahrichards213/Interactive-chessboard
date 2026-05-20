@@ -28,8 +28,8 @@ int* checkOneDir(Piece piece, int hort, int vert) {
 
   int i = 0;
   // ensures we don't go off edge of board
-  while ((rank + vert) >= 1 && (rank + vert) <= BOARDSIZE && (file + hort) >= 'a' &&
-         (file + hort) <= 'a' + BOARDSIZE - 1) {
+  while ((rank + vert) >= 1 && (rank + vert) <= BOARDSIZE &&
+         (file + hort) >= 'a' && (file + hort) <= 'a' + BOARDSIZE - 1) {
     // we come across empty square
     if (board[BOARDSIZE - (rank + vert)][file + hort - 97].type == '_') {
       possibleMoves[i] = (BOARDSIZE - (rank + vert)) * 10 + (file - 97) + hort;
@@ -43,14 +43,17 @@ int* checkOneDir(Piece piece, int hort, int vert) {
         vert = vert + vert / abs(vert);
       }
 
-    //come across enemy piece
-    } else if (board[BOARDSIZE - (rank + vert)][file + hort - 97].colour != colour) {
-      possibleMoves[i] = (BOARDSIZE - (rank + vert)) * 10 + (file - 97) + hort;
+      // come across enemy piece
+    } else if (board[BOARDSIZE - (rank + vert)][file + hort - 97].colour !=
+               colour) {
+      possibleMoves[i] =
+          (-1) * ((BOARDSIZE - (rank + vert)) * 10 + (file - 97) + hort);
       possibleMoves[i + 1] = -1;
       return possibleMoves;
 
       // we come across ally piece
-    } else if (board[BOARDSIZE - (rank + vert)][file + hort - 97].colour == colour) {
+    } else if (board[BOARDSIZE - (rank + vert)][file + hort - 97].colour ==
+               colour) {
       possibleMoves[i] = -1;
       return possibleMoves;
     }
