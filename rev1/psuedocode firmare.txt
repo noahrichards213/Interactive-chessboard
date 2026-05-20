@@ -16,6 +16,16 @@ we initialize an MCP object by defining CS, MOSI, MISO, and CLK pins, then we
 call MCP_object.write1(pin#, value). the value is literally 1 for high or 0 for low
 
 //HOW ARE WE GOING TO PUT THE AVAILABLE MOVES INTO THE MCPPIN ARRAY? answer: each element in the array is a Piece object w/ the available moves array
+#define WHITE KINGSIDE ROOK START 15 
+#define WHITE KINGSIDE ROOK END 7
+#define BLACK KINGSIDE ROOK START 12 
+#define BLACK KINGSIDE ROOK END 4
+
+#define WHITE QUEENSIDE ROOK START 3
+#define WHITE QUEENSIDE ROOK END 11
+#define BLACK QUEENSIDE ROOK START 0 
+#define BLACK QUEENSIDE ROOK END 8
+
 
 //CALCULATION FOR THE 4X4 BOARD, HOW ARE THE PIECES GOING TO BE ORDERED
 index number on the left
@@ -62,11 +72,41 @@ if (i < 8){
 int value = MCP_1.readMCP(i)
 if (value != array[i]){
 MCPpinX = empty;
-executeliftedPiece(i)
+moveMade = executeliftedPiece(i)
 }
 
+//after we execurte this, there are two special possible moves
+// we will assume that promotions are done by physically moving the pawn to the 8th
 
+1. castling, we need to move the rook as well. we will hardcode all the values
+if (moveMade >= 100 && moveMade < 10000){
+  if (moveMade == WHITEKINGCASTLE){
+    while (read_MCP(WHITE_KINGSIDE_ROOK_START) == HIGH && read_MCP(WHITE_KINGSIDE_ROOK_END) == LOW);
+  }
+  else if (moveMade == BLACKKINGCASTLE)
+    while (read_MCP(BLACK_KINGSIDE_ROOK_START) == HIGH && read_MCP(BLACK_KINGSIDE_ROOK_END) == LOW);
+  else if (moveMade == WHITEQUEENCASTLE)
+    while (read_MCP(WHITE_QUEENSIDE_ROOK_START) == HIGH && read_MCP(BLACK_QUEENSIDE_ROOK_END) == LOW);
+  else if (moveMade == BLACKQUEENCASTLE)
+    while (read_MCP(BLACK_QUEENSIDE_ROOK_START) == HIGH && read_MCP(BLACK_QUEENSIDE_ROOK_END) == LOW);
 
+}
+
+2. enpassant, we need to remove the captured pawn
+
+if (moveMade > 10000){ 
+ //colour variable is from the main c program
+
+ //if it's a white enpassant, the captured piece is +1 index from where the capturing pawn ends up
+ //if it's a black en passant, the captured piece is -1 index form where the capturing pawn ends up
+ int indexChange = colour == WHITE ? 1 : -1
+
+ int removeEnPassant = moveMade / 1000;
+ int calculateIndex = ((removeEnPassant % 10) * 4 + (removeEnPassant - removeEnPassant % 10)/10) + indexCahnge
+ while(read_MCP(calculateIndex) == HIGH); 
+}
+
+//rest of code is here
 }
 
 //implementation of liftedPiece
@@ -85,15 +125,15 @@ if (arraySize(array[index].availableMoves == 0){
  executeMovePiece(index);
 }
 
-
+//in each case
 
 //implementation of executeMovePiece
-void executeMovePiece(int index){};
+int executeMovePiece(int index){};
 
 
 //when a move is made, one of two things will change: the destination square will go from HIGH to LOW (capture) or LOW TO HIGH (noncapture)
 
-//promotion, en passant, and castling are handled later
+//en passant, and castling are handled later
 int size = arraySize(array[index].availableMoves);
 int calculatedIndex;
 int desiredState;
@@ -101,7 +141,15 @@ int state;
 bool stop = false;
 while (stop == false;){
 for (int i = 0; i < size; i++){
-  int x = abs(array[index].availableMoves[i]) % 10;
+  int moveMade = array[index].availableMoves[i];
+  int x = abs(array[index].availableMoves[i]);
+  if (x >= 100 & x < 10000){
+    x /= 100;
+  }
+  
+  if (x >= 10000){
+    x /= 1000;
+  }
   calculatedIndex = (x % 10) * 4 + (x - x % 10)/10;
   state = read_MCP(calculatedIndex);
   desiredState = array[index].availableMoves[i] ? LOW: HIGH;
@@ -110,7 +158,7 @@ for (int i = 0; i < size; i++){
   if (desiredState == HIGH){
      while(read_MCP(index) == HIGH || read_MCP(calculated_index) == LOW);
      // at this point, still need to account for possible promotions
-     return;
+     return moveMade;
   //meaning that the move was a capture
   } else if (desiredState == LOW){
 
@@ -118,7 +166,7 @@ for (int i = 0; i < size; i++){
      while(read_MCP(calculatedIndex) == HIGH);
      //replace piece;
      while(read_MCP(index) == HIGH || read_MCP(calculated_index) == LOW)
-     return;
+     return moveMade;
 
   }
 
