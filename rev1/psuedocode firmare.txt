@@ -53,12 +53,7 @@ index number on the left
 
 //read function b/c we have two MCP's
 
-int read_MCP(int index){
-if (index < 8){
- return MCP_1.read1(i);
-} else if (index > 8){
- return MCP_2.read1(i - 8);
-}
+
 
 }
 

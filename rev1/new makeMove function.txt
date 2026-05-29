@@ -20,30 +20,45 @@ extern Piece board[BOARDSIZE][BOARDSIZE];
 
 we need: 
 
-int index_to_i(index)
-int i = 
-
-
-return i;
-
-int index_to_j(index)
-int j = 
-
-
-return j;
+int index_to_i(index){
+ return index % BOARDIZE;
+}
 
 
 
+int index_to_j(index){
+ return index // BOARDSIZE;
+} 
+
+
+//MCP_1
+0: board[0][0]
+1: board[1][0]
+2: board[2][0]
+3: board[3][0]
+4: board[0][1]
+5: board[1][1]
+6: board[2][1]
+7: board[3][1]
+
+//MCP_2
+8: board[0][2]
+9: board[1][2]
+10: board[2][2]
+11: board[3][2]
+12: board[0][3]
+13: board[1][3]
+14: board[2][3]
+15: board[3][3]
 
 void makeMove(int colour) {
 for (int i = 0; i < BOARDSIZE * BOARDSIZE; i++){
 
-if (i < 8){
-int value = MCP_1.readMCP(i)
+int value = readMCP(i);
 if (value != array[i]){
-MCPpinX = empty;
-moveMade = executeliftedPiece(i)
-}
+array[i] = value;
+moveMade = executeliftedPiece(i);
+
 
 //after we execurte this, there are two special possible moves
 // we will assume that promotions are done by physically moving the pawn to the 8th
@@ -76,7 +91,7 @@ if (moveMade > 10000){
  while(read_MCP(calculateIndex) == HIGH); 
 }
 
-//rest of code is here
+//end of the make move function, the rest of the program's code is here
 }
 
 //implementation of liftedPiece
@@ -157,6 +172,15 @@ for (int i = 0; i < size; i++){
 
 if (we are castling){
  while (kingFrom reg and rookFrom reg FULL and kingTo reg and rookTo reg EMPTY);
+
+  // handles castling
+
+  // this range is just castling moves, no enpassant
+  if ((yesDest >= 100 && yesDest < 10000)) {
+    executeCastling(yesDest);
+    return;
+  }
+
 }
 
 
@@ -187,17 +211,8 @@ while (reg_y !LOW);
   else if (reg y is empty)
   while (reg_x is HIGH and reg_y is EMPTY);
   MCPxpinx = newPiece
-
-
-}
-
-  // remove en passant moves if they weren't aleady made
-  removeEnPassant();
-
-  // handles promotion (but still need to add available moves for promoted
-  // piece in)
-  if ((sourcePiece.type == 'P' && rankDest == BOARDSIZE) ||
-      (sourcePiece.type == 'p' && rankDest == 1)) {
+    // handles promotion 
+  if (moveMade >= 10000) {
     board[BOARDSIZE - rankDest][fileDest - 97] =
         executePromotion(colour, rankDest, fileDest);
     board[BOARDSIZE - rankDest][fileDest - 97].rank = rankDest;
@@ -210,13 +225,10 @@ while (reg_y !LOW);
     return;
   }
 
-  // handles castling
 
-  // this range is just castling moves, no enpassant
-  if ((yesDest >= 100 && yesDest < 10000)) {
-    executeCastling(yesDest);
-    return;
-  }
+}
+
+
 
   // regular piece movement
   board[BOARDSIZE - rankDest][fileDest - 97] = sourcePiece;
@@ -225,8 +237,6 @@ while (reg_y !LOW);
   board[BOARDSIZE - rankDest][fileDest - 97].rank = rankDest;
   board[BOARDSIZE - rankDest][fileDest - 97].file = fileDest;
   board[BOARDSIZE - rankDest][fileDest - 97].hasMoved = true;
-
-  // actually we need to set opposite colour to NULL when it's not their turn
 
   board[BOARDSIZE - rankSource][fileSource - 97] = empty;
 
@@ -252,3 +262,6 @@ while (reg_y !LOW);
   }
   return;
 }
+
+  // remove en passant moves if they weren't aleady made
+  removeEnPassant();
