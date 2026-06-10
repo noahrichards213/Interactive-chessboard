@@ -1,0 +1,44 @@
+Priority #1: get the MCP23S17 working
+
+
+	ECE 231 concepts! how to calculate the current through the resistor LED combo
+	0. (note cannot use OHM's law b/c diode isn't a resistor, must use datasheet current-voltage characteristic)
+	1. If = (3.3 - Vf)/R, where If and Rf are forward current and forward voltage
+ 	2. Guess a correct point on graph
+	3. According to the datasheet for the LED we are using:
+	@ 1.9V, there is 7mA
+        @ 1.95V, there is 15mA
+
+	From my resistor equation:
+        @ 1.9V, there is 9.3mA
+	@ 1.95V, there is 9mA
+
+	Therefore, the real operating point is somewhere between 1.9 and 1.95V and 7mA and 15mA
+
+	So, we were outputting at most 15mA current out of each pin, 8 times per MCP, which is 5 * 15mA = 120mA < 125mA limit. 
+
+	So, it is not possible that the MCP is actually damaged from this (even w/ resistor tolerance the range we created is just too big!! There is another problem
+
+Possible problems
+1. SPI not connecting
+	test: use the who am i function (use exact same code as the gyro, very very carefully read MCP datasheet for source code)
+	another test: test using purposely wrongly defined pins and see if MCP.begin stil works. if it still does, then spi may not be connectinat all
+
+
+
+June 10:
+
+We have gotten the MCP working. Let us ponder this problem. It seems that all the hall effects have been fried because they only pull up to 0.6. I replaced one and it pulls up to 3.3.
+
+We will need to replace other hall effects and test that (tomorrow). Today we will consider if it is even possible that hall effects were fried.
+
+But how?
+
+We note from the datasheet that the maximum reverse output voltage is 0.5V. We surely exceeded this when testing and trying to write 3.3V into the hall effect pin
+
+So, we must:
+- replace all 15 of the fried hall effects
+- resolder the broken LED
+- frankestein a 5k resistor to the square that is missing one
+
+Then we can start testing our firmware. Start w/ same handwritten code, and then try to implement the whole thign
