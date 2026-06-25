@@ -29,5 +29,4 @@ void loop() {
   Serial.print("This is the pin value from channel ");
   Serial.println(channel_num);
   Serial.print(sensorValue);
-  Serial.
 }
