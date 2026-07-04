@@ -94,3 +94,18 @@ Regular solder the hall effect, pullup resistor and decoupling capacitor
 
 10 Frankenstein's total
 
+June 29:
+To reduce the number of Frankensteins, we will ground three of the select signals and keep one for testing different channels
+
+The one that is not soldered to ground is s0. When s0 is ON, channel is 1, when s0 is OFF, channel is 0.
+
+
+July 2:
+successfully tested them mux, also retested the MCP. problem with the MCP: we will need 4 on one spi line, but all four will need to communicate at the same (light up leds). how will we accomplish this
+
+July 2 (night):
+We are trying to test two MCP's on the same SPI, right now only one of them is working.
+
+First, let's test just the not working one to see if all the PCB connections are correct.
+
+If that is working, then let's reconfigure the SPI. Delete the CS_pin from the argument and see what happens

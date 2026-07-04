@@ -15,7 +15,7 @@
     Serial.begin(115200);
 
     fspi_1 = new SPIClass(FSPI);
-    fspi_1->begin(CLK_pin, MISO_pin, MOSI_pin, CS_pin1);
+    fspi_1->begin(CLK_pin, MISO_pin, MOSI_pin);
 
     MCP_1 = new MCP23S17(CS_pin1, fspi_1); 
     MCP_2 = new MCP23S17(CS_pin2, fspi_1);
