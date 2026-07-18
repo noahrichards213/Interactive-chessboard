@@ -11,7 +11,7 @@
   MCP23S17 *MCP_1 = nullptr;
   MCP23S17 *MCP_2 = nullptr;
 
-  void setup() {
+  void setup() {  
     Serial.begin(115200);
 
     fspi_1 = new SPIClass(FSPI);
@@ -37,25 +37,31 @@
       Serial.println("Configuration 2 complete.");
 
     }
+    MCP_2->write1(6, HIGH);
   }
 
   void loop()
   {
-    MCP_1->write1(7, HIGH);
-    MCP_1->write1(6, HIGH);
 
-    MCP_2->write1(6, HIGH);
-    MCP_2->write1(5, HIGH);
+    // Serial.println("HIGH");
 
-    delay(1000);
+    // Serial.println(MCP_1->write1(7, HIGH));
+    // Serial.println(MCP_1->write1(6, HIGH));
 
-    MCP_1->write1(7, LOW);
-    MCP_1->write1(6, LOW);
+    // Serial.println(MCP_2->write1(6, HIGH));
+    // Serial.println(MCP_2->write1(5, HIGH));
 
-    MCP_2->write1(6, LOW);
-    MCP_2->write1(5, LOW);
+    // delay(1000);
 
-    delay(1000);
+    
+    // Serial.println("LOW");
+    // MCP_1->write1(7, LOW);
+    // MCP_1->write1(6, LOW);
+
+    // MCP_2->write1(6, LOW);
+    // MCP_2->write1(5, LOW);
+
+    // delay(1000);
     // MCP_1->write1(6, LOW);
     // MCP_1->write1(5, LOW);
 

@@ -1,0 +1,4 @@
+May 29 2026
+- still need to test if the hall effect/ gpio extender/ led idea is going to work
+
+- guaranteed changes: different LED's: like this one: JB5630AWT-P-H30GA0000-NZ000001

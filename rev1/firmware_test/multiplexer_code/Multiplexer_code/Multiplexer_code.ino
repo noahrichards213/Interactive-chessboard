@@ -15,6 +15,7 @@ CD74HC4067 mux_A(S0, -1, -1, -1);
 void setup()
 {
   Serial.begin(115200);
+  Serial.println("Multiplexer code");
   Serial.println("The ESP can print");
   pinMode(S0, OUTPUT);
 }

@@ -109,3 +109,51 @@ We are trying to test two MCP's on the same SPI, right now only one of them is w
 First, let's test just the not working one to see if all the PCB connections are correct.
 
 If that is working, then let's reconfigure the SPI. Delete the CS_pin from the argument and see what happens
+
+
+July 5. 
+Unfortuatnely, we can't use MCP's I realized b/c the current draw is far too much (b/c we have 16 LEDS per IC). We need some kind of LED driver
+
+Another problem is that the MCP output just isn't working, which is super frustrating. Randomly stopped working
+
+July 8.
+So, we don't actually need the MCP. We have a design that will work for the hall effects, now we need one for the LEDS:
+Let's consider the gate driver IC:
+
+Input: weak logic signals (like from ESP 32)
+Output: High current & current voltage signals
+
+The kind of gate driver IC we will need depends on the amount of current we will need. let's consider which LED we will use
+
+We are considering this one: JB5630AWT-P-H30GA0000-NZ000001, that is large enough and has the test current of 65mA
+
+
+I'm liking the TPIC6C595 Power Logic 8-Bit Shift Register, which has:
+- 8 outputs (for LEDS) (so we need 8 of them)
+- one reset button (can have common for each IC)
+- active low output enable
+- ground
+- shift register clock (can have common for each IC)
+- update register clock (can have common for each IC)
+
+Note the max ratings: Continuous drain current, each output, all outputs on, TC = 25°C is 100mA, which is well above the 65mA which will be going through the LED (note we will have compute resistor values precisely that we get the correct voltage LED, which is 2.8V
+
+Here's the test we will perform: cascade two TCP and connect a few LEDS making sure to cover both TCPs
+	
+July 14.
+We need a very low resistance for the LEDS.
+Operating point is (2.8V, 65mA).
+
+So, 65mA = (5 - 2.8V)/R, R is about 30 ohms
+
+July 16.
+Changing LED source to 3.3V for simplicity of PCB,
+and if we choose an R of 10, operating point is at about (2.76V, 54mA), which is about 75% relative luminous flux
+
+
+July 16 night
+We need a switching regulator to 3.3V. So the plan is linear from 7.4 to 5 (use headers to for lipo input output), then switching from 5 to 3.3.
+
+July 17
+We need a battery with enough ampere hours, but those all have Deans T headers
+We can't have a Deans T receptacle of the PCB (too much mechanical stress), so we need a Deans T to xt30 adapater(xt30 instead of jst because it has the adequate current rating)

@@ -26,10 +26,10 @@ MCP23S17 *MCP_1 = nullptr;
 MCP23S17 *MCP_2 = nullptr;
 
 //creating mux object
-CD74HC4067 mux_A(S0, -1, -1, -1);
+CD74HC4067 mux_A(255, 255, 255, 255);
 
 const int g_common_pin = 3;
-int channel_num = 0;
+int channel_num = 1;
 
 //chessboard specific variables
 int piece_state[2];
@@ -65,27 +65,45 @@ void setup()
   }
   Serial.begin(115200);
   Serial.println("The ESP can print");
-  pinMode(S0, OUTPUT);
+  // pinMode(S0, OUTPUT);
   pinMode(g_common_pin, INPUT);
 
   //initializing piece states 
   piece_state[0] = OFF;
-  piece_state[1] = ON;
+  piece_state[1] = OFF;
 }
 
 void loop() {
   int sensorValue;
   int sensorDigital;
 
-  //looping through both channels
-  if (channel_num == 1){
-    channel_num = 0;
-    digitalWrite(S0, 0);
-  } else {
-    channel_num = 1;
-    digitalWrite(S0, 1);
+
+
+  MCP_1->write1(7, HIGH);
+  MCP_1->write1(6, HIGH);
+  MCP_2->write1(6, HIGH);
+  MCP_2->write1(5, HIGH);
+
+  // looping through both channels
+  // if (channel_num == 1){
+  //   channel_num = 0;
+  //   // digitalWrite(S0, 0);
+  // } else {
+  //   channel_num = 1;
+  //   // digitalWrite(S0, 1);
+  // }
+  //mux_A.channel(channel_num);
+
+  if (channel_num == 0){
+    MCP_1->write1(0, LOW);
+  } else if (channel_num == 1){
+    // MCP_1->write1(5, HIGH);
+    MCP_1->write1(0, HIGH);
+
+    MCP_1->write1(2, HIGH);
+    // MCP_1->write1(7, HIGH);
   }
-  mux_A.channel(channel_num);
+  
   sensorValue = analogRead(g_common_pin);
 
   if (sensorValue > THRESHOLD){
@@ -103,39 +121,42 @@ void loop() {
       
       Serial.println("We are removing a piece");
 
-      //waiting for piece to be placed down (not considering capture)
-      //also not considering which moves are legal
-        int i = 0; 
-        // This executes the block once before checking the condition
-        do {
-          for (i = 0; i < 2; i++) {
-            if (i != channel_num) {
-              mux_A.channel(i);
-              sensorValue = analogRead(g_common_pin);
+      // waiting for piece to be placed down (not considering capture)
+      // also not considering which moves are legal
+        // int i = 0; 
+        // // This executes the block once before checking the condition
+        // do {
+        //   for (i = 0; i < 2; i++) {
+        //     if (i != channel_num) {
+        //       if (i == 0){
+        //           MCP_1->write1(0, LOW);
+        //         } else if (i == 1){
+        //           MCP_1->write1(0, HIGH);
+        //         }
+        //       sensorValue = analogRead(g_common_pin);
 
-              // Check if we placed something on another piece
-              if (piece_state[i] == OFF && sensorValue < THRESHOLD) {
-                Serial.print("We are placing something after removing");
-                piece_state[i] = ON;
+        //       // Check if we placed something on another piece
+        //       if (piece_state[i] == OFF && sensorValue < THRESHOLD) {
+        //         Serial.print("We are placing something after removing");
+        //         piece_state[i] = ON;
 
-                delay(10000);
-                // Perform correction
-                // mux_A.channel(channel_num);
-                // sensorValue = analogRead(g_common_pin);
+        // //         delay(10000);
+        // //         // Perform correction
+        // //         // mux_A.channel(channel_num);
+        // //         // sensorValue = analogRead(g_common_pin);
 
-                //finish this later, check the original square, for now not testing (july 3)
+        // //         //finish this later, check the original square, for now not testing (july 3)
                 
-              }
-            }
-          }
+        //       }
+        //     }
+        //   }
 
-        } while (!(piece_state[i] == OFF && sensorValue < THRESHOLD));
+        // } while (!(piece_state[i] == OFF && sensorValue < THRESHOLD));
 
       }
 
-
-    }
     piece_state[channel_num] = sensorDigital;
+    }
   }
 
 
