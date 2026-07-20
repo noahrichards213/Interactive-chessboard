@@ -102,14 +102,6 @@
           ""
         ],
         [
-          "footprint_symbol_mismatch|100076000|24892000|d57217b9-60e9-48ac-8c1e-18ef5af6f98d|00000000-0000-0000-0000-000000000000",
-          ""
-        ],
-        [
-          "footprint_symbol_mismatch|129338000|30916000|8f2b3163-fed0-4798-8c70-d036660125cf|00000000-0000-0000-0000-000000000000",
-          ""
-        ],
-        [
           "silk_edge_clearance|105962000|14732000|99ee6a53-cadf-46e3-bec8-43f39c06c37b|5951f5e3-fb84-4ef3-b76d-475a48e75d44",
           ""
         ],
@@ -575,7 +567,7 @@
       "gencad": "",
       "idf": "",
       "netlist": "",
-      "plot": "",
+      "plot": "Gerber files/",
       "pos_files": "",
       "specctra_dsn": "",
       "step": "",

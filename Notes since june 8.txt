@@ -157,3 +157,28 @@ We need a switching regulator to 3.3V. So the plan is linear from 7.4 to 5 (use 
 July 17
 We need a battery with enough ampere hours, but those all have Deans T headers
 We can't have a Deans T receptacle of the PCB (too much mechanical stress), so we need a Deans T to xt30 adapater(xt30 instead of jst because it has the adequate current rating)
+
+July 19
+
+Checking to see if LED driver will get too hot:
+- assuming room temparture
+- upper bound for current drawn is 60mA
+
+Note that the allowable power dissipated is given by:(Junction temp - Ambient temp)/thermal resistance (variation of Ohm's law)
+
+So, according to datasheet, P = (150-25)/82.3  (SOIC thermal resistance) = lower bound of 1.5 Watts.
+
+How much power is dissipated if we have all 8 LED's on at once?
+Upper bound of 60mA squared * 30ohms = 0.11W * 8 < 1 Watt
+
+Also note: the 60mA is not being drawn from 5V because it's an open drain output, it sinks current from the LED voltage source
+00
+Ensuring that the buck regulator is able to provide enough current (recommended limit is 2A).
+Max number of LED's on at once is 27. 60mA * 27 + 500mA for ESP < 2A.
+
+Suppose we use 12 ohm resistor instead: then operating point is at an upper bound of 45mA via Desmos, which is about 60 percent relative luminuous flux. Okay for now
+
+So 45mA * 27 + 500mA = 1.7A + 64 * 0.0045 from hall effects) is just barely over 2, it's okay
+
+
+
