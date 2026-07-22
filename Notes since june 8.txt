@@ -178,7 +178,7 @@ Max number of LED's on at once is 27. 60mA * 27 + 500mA for ESP < 2A.
 
 Suppose we use 12 ohm resistor instead: then operating point is at an upper bound of 45mA via Desmos, which is about 60 percent relative luminuous flux. Okay for now
 
-So 45mA * 27 + 500mA = 1.7A + 64 * 0.0045 from hall effects) is just barely over 2, it's okay
+So 45mA * 27 + 500mA = 1.7A + 64 * 0.0045 (from hall effects) is just barely over 2, it's okay
 
 
 
