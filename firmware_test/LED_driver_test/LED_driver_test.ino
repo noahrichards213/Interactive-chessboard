@@ -1,21 +1,20 @@
-//because transistors inside IC take a nonzero time to change states
 #define GATE_DELAY 20
 
 #define SER_IN 4
 #define SRCK   48
 #define RCK    47
 
-void b595_write(byte bits)
+// Updated to accept an unsigned int (16 bits) so it handles both ICs
+void b595_write(unsigned int data)
 {
-    shiftOut(SER_IN, SRCK, LSBFIRST, bits);
-    //what does shiftOut do?
-
-    /*1. writes 8 bits to the data pin
-    //2. writes clock high then low (signaling shift register to read the data)
-    */
-  
-    // After the clock pulse, the shift register has recognized the data
-    // Must pulse the latch (RCK) to output the byte
+    // 1. Shift out the high byte first (this goes past IC1 and ends up in IC2)
+    shiftOut(SER_IN, SRCK, MSBFIRST, (data >> 8) & 0xFF);
+    
+    // 2. Shift out the low byte (this stays in IC1)
+    shiftOut(SER_IN, SRCK, MSBFIRST, data & 0xFF);
+    
+    // 3. Pulse the latch (RCK) AFTER all 16 bits are sent
+    // This makes both ICs update their outputs at the exact same time
     delayMicroseconds(GATE_DELAY);
     digitalWrite(RCK, HIGH);
     delayMicroseconds(GATE_DELAY);
@@ -24,18 +23,24 @@ void b595_write(byte bits)
 
 void setup()
 {
-    //the clocks signals and input signals are receiving data
+    Serial.begin(115200);    
     pinMode(SER_IN, OUTPUT);
     pinMode(SRCK, OUTPUT);
     pinMode(RCK, OUTPUT);
+
+    Serial.println("LED driver initialized");
+
 }
 
 void loop()
 {
-    //will light up each LED on the board for 0.5 seconds
-    for (int i=0; i<16; i++)
+    for (unsigned int i = 0; i <= 256; i++)
     {
         b595_write(i);
-        delay(500);
+        Serial.print("Pattern: ");
+        Serial.println(i);
+        delay(1000);
+
+        
     }
 }

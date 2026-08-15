@@ -1,0 +1,14 @@
+July 25
+- make LED footprints have more space between anode and cathode, rn it's a tough solder
+
+August 3
+- make 7.4 and GND breakouts instead of 5V and GND (into buck converter) (done
+- make the breakouts female
+- add switch to turn off power 
+
+August 9
+- switch not necessary, i need to take out battery to charge anyway
+- female breakouts not necessary, if need be i can just solder wires to through holes
+
+- 7.4 breakout done
+- LED footprint enlarge done

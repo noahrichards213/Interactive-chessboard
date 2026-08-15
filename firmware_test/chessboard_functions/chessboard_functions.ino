@@ -13,6 +13,7 @@
 
 #define A 0
 #define B 1
+#define BOARDSIZE 4
 
 //creating mux object
 CD74HC4067 mux_A(S0, S1, S2, S3);
@@ -23,17 +24,6 @@ const int b_common_pin = 6;
 
 //let's start with just one piece moving around
 int boardStates[4][4];
-
-// void muxSetup(){
-
-
-// }
-
-// void LEDDriverSetup(){
-
-
-
-// }
 
 //helper function to map boardState array to loopThroughSensors()
 int findBoardRow(int mux_number, int loop_number){
@@ -84,26 +74,48 @@ void changedSquare(int state){
   }
 }
 
+//does all the work that int main() does in the original program
+void updateAvailableMoves(){
+  //switches turn from white to black or black to white
+
+  //changes availalbe moves (not considering check)
+
+  //remove moves that would result in check
+
+  //check if the payer whose turn it is has legal moves
+
+
+}
+
 
 void setup()
 {
+  //bottom left of the board starts with a square
+  for (int i = 0; i < BOARDSIZE; i++){
+    for (int j = 0; j < BOARDSIZE; j++){
+      boardStates[i][j] = OFF;
+    }
+  }
+
+  boardStates[0][0] = ON;
+}
 
 
 }
 
 void loop() {
-    for (int i = 0; i < 16; i++){
+    for (int i = 0; i < BOARDSIZE * BOARDSIZE; i++){
     int muxA_state;
     int muxB_state;
 
-    //this if statement if temporary because we aren't using all mux spots
+    //this if statement if temporary because we aren't using all mux spots right now
     if (i <= 3 && i >= 12){
       mux_A.channel(i);
       mux_B.channel(i);
 
       muxA_state = analogRead(a_common_pin);
       if (muxA_state != boardStates[findBoardRow(A, i)][findBoardCol(A, i)]){
-        void changedSqare(muxA_state);
+        void changedSquare(muxA_state);
         boardStates[findBoardRow(A, i)][findBoardCol(A, i)] = muxA_state;
       }
 
