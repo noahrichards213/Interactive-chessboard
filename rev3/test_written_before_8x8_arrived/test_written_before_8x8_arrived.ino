@@ -10,6 +10,7 @@
 //Hall effects
 #define ON 0
 #define OFF 1
+#define MOVING 2
 #define THRESHOLD 250
 
 //Multiplexers
@@ -78,6 +79,10 @@ CD74HC4067 mux_B(S0, S1, S2, S3);
 CD74HC4067 mux_C(S0, S1, S2, S3);
 CD74HC4067 mux_D(S0, S1, S2, S3);
 
+//setup for board
+int colour = WHITE;
+bool haveMove = true;
+
 
 void write_leds(unsigned int data)
 {
@@ -99,52 +104,111 @@ Piece board[BOARDSIZE][BOARDSIZE];
 //let's start with just one piece moving around
 int boardStates[BOARDSIZE][BOARDSIZE];
 
-//helper functions to map boardState array to loopThroughSensors()
+//NOTE FOR THESE FUNCTIONS, MUX D IS UPSIDE DOWN ON PCB, THAT IS REASON FOR ASYMMETRY
+
+//these functions give the index (i.e from 0 to BOARDSIZE - 1 which is 7)
 int findBoardRow(int mux_number, int loop_number){
-  if (mux_number == A) { 
-
+  if (mux_number == A || mux_number == C){
+    if (loop_number == 15 || loop_number == 11 || loop_number == 0 || loop_number == 4){
+      return 0;
+    } else if (loop_number == 14 || loop_number == 10 || loop_number == 1 || loop_number == 5){
+      return 1;
+    } else if (loop_number == 13 || loop_number == 9 || loop_number == 2 || loop_number == 6){
+      return 2;
+    } else if (loop_number == 12 || loop_number == 8 || loop_number == 3 || loop_number == 7){
+      return 3;
+    }
   } else if (mux_number == B){
-
-  } else if (mux_number == C){
-
+    if (loop_number == 15 || loop_number == 11 || loop_number == 0 || loop_number == 4){
+      return 4;
+    } else if (loop_number == 14 || loop_number == 10 || loop_number == 1 || loop_number == 5){
+      return 5;
+    } else if (loop_number == 13 || loop_number == 9 || loop_number == 2 || loop_number == 6){
+      return 6;
+    } else if (loop_number == 12 || loop_number == 8 || loop_number == 3 || loop_number == 7){
+      return 7;
+    }
   } else if (mux_number == D){
-
+    if (loop_number == 15 || loop_number == 11 || loop_number == 0 || loop_number == 4){
+      return 7;
+    } else if (loop_number == 14 || loop_number == 10 || loop_number == 1 || loop_number == 5){
+      return 6;
+    } else if (loop_number == 13 || loop_number == 9 || loop_number == 2 || loop_number == 6){
+      return 5;
+    } else if (loop_number == 12 || loop_number == 8 || loop_number == 3 || loop_number == 7){
+      return 4;
+    }
   }
+
 }
 
 int findBoardCol(int mux_number, int loop_number){  
-  if (mux_number == A) { 
-    
-  } else if (mux_number == B){
-
+  if (mux_number == A || mux_number == B){
+    if (loop_number >= 12 && loop_number <= 15){
+      return 0;
+    } else if (loop_number >= 8 && loop_number <= 11){
+      return 1;
+    } else if (loop_number >= 0 && loop_number <= 3){
+      return 2;
+    } else if (loop_number >= 4 && loop_number <= 7){
+      return 3;
+    }
   } else if (mux_number == C){
-
+    if (loop_number >= 12 && loop_number <= 15){
+      return 7;
+    } else if (loop_number >= 8 && loop_number <= 11){
+      return 6;
+    } else if (loop_number >= 0 && loop_number <= 3){
+      return 5;
+    } else if (loop_number >= 4 && loop_number <= 7){
+      return 4;
+    }
   } else if (mux_number == D){
-
+    if (loop_number >= 12 && loop_number <= 15){
+      return 4;
+    } else if (loop_number >= 8 && loop_number <= 11){
+      return 5;
+    } else if (loop_number >= 0 && loop_number <= 3){
+      return 6;
+    } else if (loop_number >= 4 && loop_number <= 7){
+      return 7;
+    }
   }
 }
 
 
+//so far doesn't include special moves (en passant, castling, promotion)
 
+//also doesn't include possibility for making illegal moves
 void changedSquare(int mux_number, int loop_number, int state){
 
-  // for (int i = 0; i < BOARDSIZE; i++){
-  //   for (int j = 0; j < BOARDSIZE; j++){
-  //     Serial.print(boardStates[i][j]);
-  //   }
-  //   Serial.println(" ");
-  // }
+  int boardRow = findBoardRow(mux_number, loop_number);
+  int boardCol = findBoardCol(mux_number, loop_number);
 
-
-  
+  // if we took a piece off, means we are prepping to make a make a move
   if (state == OFF){
-    Serial.print("AWAY ");
-    Serial.print(mux_number);
-    Serial.println(loop_number);
+
+    //if piece has no legal moves
+    boardStates[boardRow][boardCol] = MOVING;
+    write_leds(calculateallLED(boardRow, boardCol));
+
+  // if we put a piece on, means we are completing a move
   } else if (state == ON){
-    Serial.print("ON ");
-    Serial.print(mux_number);
-    Serial.println(loop_number);
+    boardStates[boardRow][boardCol] = ON;
+
+    //updating board w/ move
+    for (int row = 0; row < BOARDSIZE - 1; row++){
+      for (int col = 0; col < BOARDSIZE - 1; col++){
+        if (boardStates[row][col] == MOVING){
+          board[boardRow][boardCol] = board[row][col];
+          board[row][col] = empty;
+          boardStates[row][col] = OFF;
+        }
+      }
+    }
+    //removes all the LEDS
+    write_leds(0);
+
   }
 
 }
@@ -167,7 +231,7 @@ int calculateoneLED(int availableMove){
   //based on row and column from availableMove, how do we access that square based on register?
 
   // THIS IS TO FIND THE DRAIN # (drain #'s are 0 to 7)
-  drain_num = BOARDSIZE - 1  - col
+  drain_num = BOARDSIZE - 1  - col;
 
   //THIS IS TO FIND THE REG # (reg's are 0 to 7)
   reg_num = BOARDSIZE - 1 - row;
@@ -221,6 +285,8 @@ void setup()
   // Set the common signal pin as an input once
   pinMode(a_common_pin, INPUT);
   pinMode(b_common_pin, INPUT);
+  pinMode(c_common_pin, INPUT);
+  pinMode(d_common_pin, INPUT);
 
   Serial.println("Multiplexer code initialized");
 
@@ -228,9 +294,6 @@ void setup()
 
 void loop()
 {    
-  int colour = WHITE;
-  bool haveMove = true;
-
   // print initial board and legal moves
   printBoard(board);
   printLegalMoves();
@@ -257,7 +320,6 @@ void loop()
 
     if (muxA_state != boardStates[findBoardRow(A, i)][findBoardCol(A, i)]){
       changedSquare(A, i, muxA_state);
-      boardStates[findBoardRow(A, i)][findBoardCol(A, i)] = muxA_state;
     }
 
 
@@ -273,7 +335,6 @@ void loop()
 
     if (muxB_state != boardStates[findBoardRow(B, i)][findBoardCol(B, i)]){
       changedSquare(B, i, muxB_state);
-      boardStates[findBoardRow(B, i)][findBoardCol(B, i)] = muxB_state;
     } 
 
     mux_C.channel(i);
@@ -288,7 +349,6 @@ void loop()
 
     if (muxC_state != boardStates[findBoardRow(C, i)][findBoardCol(C, i)]){
       changedSquare(C, i, muxC_state);
-      boardStates[findBoardRow(C, i)][findBoardCol(C, i)] = muxC_state;
     } 
 
     mux_D.channel(i);
@@ -302,11 +362,21 @@ void loop()
 
     if (muxD_state != boardStates[findBoardRow(D, i)][findBoardCol(D, i)]){
       changedSquare(D, i, muxD_state);
-      boardStates[findBoardRow(D, i)][findBoardCol(D, i)] = muxD_state;
     }
 
   }
 
+  // first check that we are not 'moving'
+  bool isMoving = false;
+  for (int row = 0; row < BOARDSIZE; row++){
+      for (int col = 0; col < BOARDSIZE; col++){
+        if (boardStates[row][col] == MOVING){
+          isMoving = true;
+        }
+      }
+  }
+
+  if (isMoving == false){
     // change legal moves
     for (int i = 0; i < 8; i++) {
       for (int j = 0; j < 8; j++) {
@@ -316,41 +386,46 @@ void loop()
       }
     }
 
-    for (int i = 0; i < 8; i++) {
-      for (int j = 0; j < 8; j++) {
-        // first, we need to check every single move and see if it leads to
-        // check (it then would be unallowed)
-        int size = arraySize(board[i][j].availableMoves);
-        for (int k = 0; k < size; k++) {
-          if (board[i][j].type != '_') {
-            if (removeCheck(board[i][j], k, board[i][j].availableMoves[k]) ==
-                true) {
-              if (board[i][j].type == 'n') {
-                for (int p = 0; p < arraySize(board[i][j].availableMoves);
-                     p++) {
-                }
+  for (int i = 0; i < 8; i++) {
+    for (int j = 0; j < 8; j++) {
+      // first, we need to check every single move and see if it leads to
+      // check (it then would be unallowed)
+      int size = arraySize(board[i][j].availableMoves);
+      for (int k = 0; k < size; k++) {
+        if (board[i][j].type != '_') {
+          if (removeCheck(board[i][j], k, board[i][j].availableMoves[k]) ==
+              true) {
+            if (board[i][j].type == 'n') {
+              for (int p = 0; p < arraySize(board[i][j].availableMoves);
+                    p++) {
               }
-              board[i][j].availableMoves[k] = ALLOWSCHECK;
             }
+            board[i][j].availableMoves[k] = ALLOWSCHECK;
           }
         }
       }
     }
-    printLegalMoves();
-    printBoard(board);
-
-    if (colour == WHITE) {
-      colour = BLACK;
-    } else if (colour == BLACK) {
-      colour = WHITE;
-    }
-    haveMove = checkLegalMoves(colour);
   }
+  printLegalMoves();
+  printBoard(board);
+
+  if (colour == WHITE) {
+    colour = BLACK;
+  } else if (colour == BLACK) {
+    colour = WHITE;
+  }
+  haveMove = checkLegalMoves(colour);
 
   if (inCheck(colour)) {
     checkmateResult();
   } else {
-    stalemateResult();("It's stalemate\n");
+    stalemateResult();
   }
+
+  }
+
+
+  }
+  
 
 }
