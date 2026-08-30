@@ -10,7 +10,7 @@
 #define OFF 1
 #define THRESHOLD 250
 
-#define BOARDSIZE 4
+#define BOARDSIZE 8
 
 
 //Multiplexer
@@ -27,25 +27,45 @@
 
 #define A 0
 #define B 1
+#define C 2
+#define D 3
 
 const int a_common_pin = 5;
 const int b_common_pin = 6;
+const int c_common_pin = 11;
+const int d_common_pin = 12;
 
 // Initialize the multiplexer with control pins S0, S1, S2, S3
 CD74HC4067 mux_A(S0, S1, S2, S3);
 CD74HC4067 mux_B(S0, S1, S2, S3);
+CD74HC4067 mux_C(S0, S1, S2, S3);
+CD74HC4067 mux_D(S0, S1, S2, S3);
 
 // Updated to accept an unsigned int (16 bits) so it handles both ICs
-void b595_write(unsigned int data)
+void b595_write(uint64_t data)
 {
-    // 1. Shift out the high byte first (this goes past IC1 and ends up in IC2)
+
+    // 1. Shift out the highest byte (Bits 39-32) -> Goes to IC5 (the furthest chip)
+    shiftOut(SER_IN, SRCK, MSBFIRST, (data >> 56) & 0xFF);
+    shiftOut(SER_IN, SRCK, MSBFIRST, (data >> 48) & 0xFF);
+    shiftOut(SER_IN, SRCK, MSBFIRST, (data >> 40) & 0xFF);
+
+    shiftOut(SER_IN, SRCK, MSBFIRST, (data >> 32) & 0xFF);
+
+    // 2. Shift out Bits 31-24 -> Goes to IC4
+    shiftOut(SER_IN, SRCK, MSBFIRST, (data >> 24) & 0xFF);
+
+    // 3. Shift out Bits 23-16 -> Goes to IC3
+    shiftOut(SER_IN, SRCK, MSBFIRST, (data >> 16) & 0xFF);
+
+    // 4. Shift out Bits 15-8  -> Goes to IC2
     shiftOut(SER_IN, SRCK, MSBFIRST, (data >> 8) & 0xFF);
     
-    // 2. Shift out the low byte (this stays in IC1)
+    // 5. Shift out the lowest byte (Bits 7-0) -> Stays in IC1 (the closest chip)
     shiftOut(SER_IN, SRCK, MSBFIRST, data & 0xFF);
     
-    // 3. Pulse the latch (RCK) AFTER all 16 bits are sent
-    // This makes both ICs update their outputs at the exact same time
+    // 6. Pulse the latch (RCK) AFTER all 40 bits are sent
+    // This updates all 5 chips simultaneously
     delayMicroseconds(GATE_DELAY);
     digitalWrite(RCK, HIGH);
     delayMicroseconds(GATE_DELAY);
@@ -57,43 +77,76 @@ int boardStates[BOARDSIZE][BOARDSIZE];
 
 //helper functions to map boardState array to loopThroughSensors()
 int findBoardRow(int mux_number, int loop_number){
-  if (mux_number == A){
-    if (loop_number >= 12 && loop_number <= 16){
+  if (mux_number == A || mux_number == C){
+    if (loop_number == 15 || loop_number == 11 || loop_number == 0 || loop_number == 4){
       return 0;
-    } else if (loop_number >= 0 && loop_number <= 3){
+    } else if (loop_number == 14 || loop_number == 10 || loop_number == 1 || loop_number == 5){
       return 1;
+    } else if (loop_number == 13 || loop_number == 9 || loop_number == 2 || loop_number == 6){
+      return 2;
+    } else if (loop_number == 12 || loop_number == 8 || loop_number == 3 || loop_number == 7){
+      return 3;
     }
   } else if (mux_number == B){
-    if (loop_number >= 12 && loop_number <= 16){
-      return 3;
-    } else if (loop_number >= 0 && loop_number <= 3){
-      return 2;
+    if (loop_number == 15 || loop_number == 11 || loop_number == 0 || loop_number == 4){
+      return 4;
+    } else if (loop_number == 14 || loop_number == 10 || loop_number == 1 || loop_number == 5){
+      return 5;
+    } else if (loop_number == 13 || loop_number == 9 || loop_number == 2 || loop_number == 6){
+      return 6;
+    } else if (loop_number == 12 || loop_number == 8 || loop_number == 3 || loop_number == 7){
+      return 7;
+    }
+  } else if (mux_number == D){
+    if (loop_number == 15 || loop_number == 11 || loop_number == 0 || loop_number == 4){
+      return 7;
+    } else if (loop_number == 14 || loop_number == 10 || loop_number == 1 || loop_number == 5){
+      return 6;
+    } else if (loop_number == 13 || loop_number == 9 || loop_number == 2 || loop_number == 6){
+      return 5;
+    } else if (loop_number == 12 || loop_number == 8 || loop_number == 3 || loop_number == 7){
+      return 4;
     }
   }
+
+  return -1;
+
 }
 
 int findBoardCol(int mux_number, int loop_number){  
-  if (mux_number == A){
-    if (loop_number == 12 || loop_number == 3){
+  if (mux_number == A || mux_number == B){
+    if (loop_number >= 12 && loop_number <= 15){
       return 0;
-    } else if (loop_number == 13 || loop_number == 2){
+    } else if (loop_number >= 8 && loop_number <= 11){
       return 1;
-    } else if (loop_number == 14 || loop_number == 1){
+    } else if (loop_number >= 0 && loop_number <= 3){
       return 2;
-    } else if (loop_number == 15 || loop_number == 0){
+    } else if (loop_number >= 4 && loop_number <= 7){
       return 3;
     }
-  } else if (mux_number == B){
-    if (loop_number == 12 || loop_number == 3){
-      return 3;
-    } else if (loop_number == 13 || loop_number == 2){
-      return 2;
-    } else if (loop_number == 14 || loop_number == 1){
-      return 1;
-    } else if (loop_number == 15 || loop_number == 0){
-      return 0;
+  } else if (mux_number == C){
+    if (loop_number >= 12 && loop_number <= 15){
+      return 7;
+    } else if (loop_number >= 8 && loop_number <= 11){
+      return 6;
+    } else if (loop_number >= 0 && loop_number <= 3){
+      return 5;
+    } else if (loop_number >= 4 && loop_number <= 7){
+      return 4;
+    }
+  } else if (mux_number == D){
+    if (loop_number >= 12 && loop_number <= 15){
+      return 4;
+    } else if (loop_number >= 8 && loop_number <= 11){
+      return 5;
+    } else if (loop_number >= 0 && loop_number <= 3){
+      return 6;
+    } else if (loop_number >= 4 && loop_number <= 7){
+      return 7;
     }
   }
+
+  return -1;
 }
 
 void changedSquare(int mux_number, int loop_number, int state){
@@ -105,7 +158,6 @@ void changedSquare(int mux_number, int loop_number, int state){
   //   Serial.println(" ");
   // }
 
-  delay(50);
 
   
   if (state == OFF){
@@ -117,6 +169,8 @@ void changedSquare(int mux_number, int loop_number, int state){
     Serial.print(mux_number);
     Serial.println(loop_number);
   }
+  uint64_t long_number = 0ULL + loop_number;
+  b595_write(long_number << 8 * mux_number);
 
 }
 
@@ -214,52 +268,83 @@ void setup()
 
 void loop()
 {    
-  for (int i = 0; i < BOARDSIZE * BOARDSIZE; i++){
+  for (int i = 0; i < 16; i++){
     int muxA_state;
+
+    mux_A.channel(i);
+
+    analogRead(a_common_pin);
+    
+    muxA_state = analogRead(a_common_pin);
+    if (muxA_state > THRESHOLD){
+      muxA_state = OFF;
+    } else if (muxA_state <= THRESHOLD){
+      muxA_state = ON;
+    }
+
+    if (muxA_state != boardStates[findBoardRow(A, i)][findBoardCol(A, i)]){
+      changedSquare(A, i, muxA_state);
+      boardStates[findBoardRow(A, i)][findBoardCol(A, i)] = muxA_state;
+    }
+
     int muxB_state;
 
-    //this if statement if temporary because we aren't using all mux spots right now
-    if (i <= 3 || i >= 12){
+    mux_B.channel(i);
 
-      if (i == 0 || i == 1|| i == 14 || i == 15){
-        mux_A.channel(i);
+    analogRead(b_common_pin);
+    
+    muxB_state = analogRead(b_common_pin);
+    if (muxB_state > THRESHOLD){
+      muxB_state = OFF;
+    } else if (muxB_state <= THRESHOLD){
+      muxB_state = ON;
+    }
 
-        analogRead(a_common_pin);
-        
-        muxA_state = analogRead(a_common_pin);
-        if (muxA_state > THRESHOLD){
-          muxA_state = OFF;
-        } else if (muxA_state <= THRESHOLD){
-          muxA_state = ON;
-        }
+    if (muxB_state != boardStates[findBoardRow(B, i)][findBoardCol(B, i)]){
+      changedSquare(B, i, muxB_state);
+      boardStates[findBoardRow(B, i)][findBoardCol(B, i)] = muxB_state;
+    }
 
-        if (muxA_state != boardStates[findBoardRow(A, i)][findBoardCol(A, i)]){
-          //somewhere here, copy the board so we return it to normal later
 
-          changedSquare(A, i, muxA_state);
-          boardStates[findBoardRow(A, i)][findBoardCol(A, i)] = muxA_state;
-        }
+    int muxC_state;
 
-      }
+    mux_C.channel(i);
+
+    analogRead(c_common_pin);
+    
+    muxC_state = analogRead(c_common_pin);
+    if (muxC_state > THRESHOLD){
+      muxC_state = OFF;
+    } else if (muxC_state <= THRESHOLD){
+      muxC_state = ON;
+    }
+
+    if (muxC_state != boardStates[findBoardRow(C, i)][findBoardCol(C, i)]){
+      changedSquare(C, i, muxC_state);
+      boardStates[findBoardRow(C, i)][findBoardCol(C, i)] = muxC_state;
+    }
+
+
+    int muxD_state;
+
+    mux_D.channel(i);
+
+    analogRead(d_common_pin);
+    
+    muxD_state = analogRead(d_common_pin);
+    if (muxD_state > THRESHOLD){
+      muxD_state = OFF;
+    } else if (muxD_state <= THRESHOLD){
+      muxD_state = ON;
+    }
+
+    if (muxD_state != boardStates[findBoardRow(D, i)][findBoardCol(D, i)]){
+      changedSquare(D, i, muxD_state);
+      boardStates[findBoardRow(D, i)][findBoardCol(D, i)] = muxD_state;
+    }
       
-      if (i == 2 || i == 3 || i == 12 || i == 13){
-      mux_B.channel(i);
+      
 
     
-      analogRead(b_common_pin);
-
-      muxB_state = analogRead(b_common_pin);
-      if (muxB_state > THRESHOLD){
-        muxB_state = OFF;
-      } else if (muxB_state <= THRESHOLD){
-        muxB_state = ON;
-      }
-
-      if (muxB_state != boardStates[findBoardRow(B, i)][findBoardCol(B, i)]){
-        changedSquare(B, i, muxB_state);
-        boardStates[findBoardRow(B, i)][findBoardCol(B, i)] = muxB_state;
-      } 
-    }
-    }
   }
 }

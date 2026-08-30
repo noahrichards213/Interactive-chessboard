@@ -101,6 +101,7 @@ The one that is not soldered to ground is s0. When s0 is ON, channel is 1, when 
 
 
 July 2:
+
 successfully tested them mux, also retested the MCP. problem with the MCP: we will need 4 on one spi line, but all four will need to communicate at the same (light up leds). how will we accomplish this
 
 July 2 (night):
@@ -179,6 +180,16 @@ Max number of LED's on at once is 27. 60mA * 27 + 500mA for ESP < 2A.
 Suppose we use 12 ohm resistor instead: then operating point is at an upper bound of 45mA via Desmos, which is about 60 percent relative luminuous flux. Okay for now
 
 So 45mA * 27 + 500mA = 1.7A + 64 * 0.0045 (from hall effects) is just barely over 2, it's okay
+
+Aug 30
+
+things to add in code
+-capturing
+-castling
+-en passant
+-promotion
+-weird combinations of these
+
 
 
 

@@ -11,6 +11,7 @@
 #define ON 0
 #define OFF 1
 #define MOVING 2
+#define CAPTURING 3
 #define THRESHOLD 250
 
 //Multiplexers
@@ -82,16 +83,33 @@ CD74HC4067 mux_D(S0, S1, S2, S3);
 //setup for board
 int colour = WHITE;
 bool haveMove = true;
+bool madeMove = false;
 
 
-void write_leds(unsigned int data)
+void write_leds(uint64_t data)
 {
-    //writing to all 64 registers
-    for (int reg_num = 7; reg_num >= 0; reg_num--){
-      shiftOut(SER_IN, SRCK, MSBFIRST, ((data >> (8 * reg_num)) & 0xFF));
-    }
 
-    //pulsing registers to LEDS
+    // 1. Shift out the highest byte (Bits 39-32) -> Goes to IC5 (the furthest chip)
+    shiftOut(SER_IN, SRCK, MSBFIRST, (data >> 56) & 0xFF);
+    shiftOut(SER_IN, SRCK, MSBFIRST, (data >> 48) & 0xFF);
+    shiftOut(SER_IN, SRCK, MSBFIRST, (data >> 40) & 0xFF);
+
+    shiftOut(SER_IN, SRCK, MSBFIRST, (data >> 32) & 0xFF);
+
+    // 2. Shift out Bits 31-24 -> Goes to IC4
+    shiftOut(SER_IN, SRCK, MSBFIRST, (data >> 24) & 0xFF);
+
+    // 3. Shift out Bits 23-16 -> Goes to IC3
+    shiftOut(SER_IN, SRCK, MSBFIRST, (data >> 16) & 0xFF);
+
+    // 4. Shift out Bits 15-8  -> Goes to IC2
+    shiftOut(SER_IN, SRCK, MSBFIRST, (data >> 8) & 0xFF);
+    
+    // 5. Shift out the lowest byte (Bits 7-0) -> Stays in IC1 (the closest chip)
+    shiftOut(SER_IN, SRCK, MSBFIRST, data & 0xFF);
+    
+    // 6. Pulse the latch (RCK) AFTER all 40 bits are sent
+    // This updates all 5 chips simultaneously
     delayMicroseconds(GATE_DELAY);
     digitalWrite(RCK, HIGH);
     delayMicroseconds(GATE_DELAY);
@@ -140,6 +158,8 @@ int findBoardRow(int mux_number, int loop_number){
     }
   }
 
+  return -1;
+
 }
 
 int findBoardCol(int mux_number, int loop_number){  
@@ -174,6 +194,8 @@ int findBoardCol(int mux_number, int loop_number){
       return 7;
     }
   }
+
+  return -1;
 }
 
 
@@ -182,36 +204,151 @@ int findBoardCol(int mux_number, int loop_number){
 //also doesn't include possibility for making illegal moves
 void changedSquare(int mux_number, int loop_number, int state){
 
+
+
+
+  // uint64_t long_number = 0ULL + loop_number;
+  // write_leds(long_number << 8 * mux_number);;
+
   int boardRow = findBoardRow(mux_number, loop_number);
   int boardCol = findBoardCol(mux_number, loop_number);
 
   // if we took a piece off, means we are prepping to make a make a move
   if (state == OFF){
+  // Serial.println("We took a piece off");
+  // Serial.print("Row: ");
+  // Serial.println(boardRow);
+  // Serial.print("Col: ");
+  // Serial.println(boardCol);
+  // Serial.print("Colour: ");
+  // Serial.println(colour);
 
-    //if piece has no legal moves
-    boardStates[boardRow][boardCol] = MOVING;
-    write_leds(calculateallLED(boardRow, boardCol));
+    uint64_t data = 0ull;
+    //accounting for captures, when you pick up an enemey piece, lights up your pieces that can capture it
+    if (board[boardRow][boardCol].colour != colour){
+      for (int row = 0; row < BOARDSIZE; row++){
+        for (int col = 0; col < BOARDSIZE; col++){
+          for (int i = 0; i < arraySize(board[row][col].availableMoves); i++){
+            if (board[row][col].colour == colour){
+              if (board[row][col].availableMoves[i] == boardRow * 10 + boardCol){
+                data += calculateoneLED(board[row][col].availableMoves[i]);
+                boardStates[boardRow][boardCol] = CAPTURING;
+              }
+            }
+          }
+        }
+      }
+ 
+    } else {
+      for (int i = 0; i < arraySize(board[boardRow][boardCol].availableMoves); i++){
+        data += calculateoneLED(board[boardRow][boardCol].availableMoves[i]);
+      }
+      write_leds(data);
+      boardStates[boardRow][boardCol] = MOVING;
+    //   for (int i = 0; i < 8; i++){
+    //     for (int j = 0; j < 8; j++){
+    //     Serial.print(boardStates[i][j]);
+    //   }
+    //   Serial.println("");
+    //   }
+    //   Serial.println("we are getting to move");
+    }
+  
 
   // if we put a piece on, means we are completing a move
-  } else if (state == ON){
+   } else if (state == ON){
+
+
     boardStates[boardRow][boardCol] = ON;
 
+
     //updating board w/ move
-    for (int row = 0; row < BOARDSIZE - 1; row++){
-      for (int col = 0; col < BOARDSIZE - 1; col++){
+    for (int row = 0; row < BOARDSIZE; row++){
+      for (int col = 0; col < BOARDSIZE; col++){
         if (boardStates[row][col] == MOVING){
+
+          
           board[boardRow][boardCol] = board[row][col];
+          
           board[row][col] = empty;
           boardStates[row][col] = OFF;
+
+          board[boardRow][boardCol].rank = 8 - boardRow;
+
+          char letter = 'a' + boardCol;
+          board[boardRow][boardCol].file = letter;
+          board[boardRow][boardCol].hasMoved = true;
+
+          // change legal moves
+          for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+              if (board[i][j].type != '_') {
+                Serial.println("We actually get here");
+                Serial.print("i: ");
+                Serial.println(i);
+                Serial.print("j: ");
+                Serial.println(j);
+
+
+
+                changeAvailableMoves(&board[i][j], colour);
+                Serial.print("size of i");
+                Serial.println(arraySize(board[i][j].availableMoves));
+                for (int idx = 0; idx < arraySize(board[i][j].availableMoves); idx++){
+                  Serial.print("move:");
+                  Serial.println(board[i][j].availableMoves[idx]);
+                }
+              }
+            }
+          }
+
+        for (int i = 0; i < 8; i++) {
+          for (int j = 0; j < 8; j++) {
+            // first, we need to check every single move and see if it leads to
+            // check (it then would be unallowed)
+            int size = arraySize(board[i][j].availableMoves);
+            for (int k = 0; k < size; k++) {
+              if (board[i][j].type != '_') {
+                if (removeCheck(board[i][j], k, board[i][j].availableMoves[k]) ==
+                    true) {
+                  if (board[i][j].type == 'n') {
+                    for (int p = 0; p < arraySize(board[i][j].availableMoves);
+                          p++) {
+                    }
+                  }
+                  board[i][j].availableMoves[k] = ALLOWSCHECK;
+                }
+              }
+            }
+          }
         }
+  
+          
+        }
+      
       }
     }
     //removes all the LEDS
     write_leds(0);
+    for (int i = 0; i < 8; i++){
+      for (int j = 0; j < 8; j++){
+        Serial.print(boardStates[i][j]);
+      }
+      Serial.println("");
+    }
+
+    for (int i = 0; i < 8; i++){
+      for (int j = 0; j < 8; j++){
+        Serial.print(board[i][j].type);
+      }
+      Serial.println("");
+    }
+
 
   }
-
 }
+
+
 
 uint64_t calculateallLED(int row, int col){
   uint64_t sum = 0ull;
@@ -222,23 +359,26 @@ uint64_t calculateallLED(int row, int col){
   return sum;
 }
 
-int calculateoneLED(int availableMove){
+uint64_t calculateoneLED(int availableMove){
   int row = availableMove / 10;
   int col = availableMove % 10;
   int drain_num = -1;
   int reg_num = -1;
 
-  //based on row and column from availableMove, how do we access that square based on register?
-
   // THIS IS TO FIND THE DRAIN # (drain #'s are 0 to 7)
-  drain_num = BOARDSIZE - 1  - col;
+  drain_num = BOARDSIZE - 1 - col;
 
   //THIS IS TO FIND THE REG # (reg's are 0 to 7)
-  reg_num = BOARDSIZE - 1 - row;
+  reg_num = row;
   
-  int addend = 1;
+  uint64_t addend = 1ULL;
   //in these tpic registers w/ shiftout MSBFIRST, Drain0 fills first for original AND daisy-chained registers
-  addend >> (reg_num * 8) + drain_num;
+
+  // Serial.print("Reg_num: ");
+  // Serial.println(reg_num);
+  // Serial.print("drain_num: ");
+  // Serial.println(drain_num);
+  addend = addend << ((reg_num * 8) + drain_num);
 
   return addend;
 
@@ -258,8 +398,11 @@ void stalemateResult(){
 
 void setup()
 {
+  Serial.begin(115200);    
+  Serial.println("REMEMBER THAT SETUP IS CHANGED TO JUST HAVE KNIGHT ON B1");
   //setup from vscode main
   setupfunction();
+
 
   //boardStates setup
   for (int i = 0; i < BOARDSIZE; i++){
@@ -267,9 +410,9 @@ void setup()
       boardStates[i][j] = OFF;
     }
   }
-  // boardStates[0][3] = ON;
+
+  boardStates[7][1] = ON;
   
-  Serial.begin(115200);    
   pinMode(SER_IN, OUTPUT);
   pinMode(SRCK, OUTPUT);
   pinMode(RCK, OUTPUT);
@@ -294,18 +437,17 @@ void setup()
 
 void loop()
 {    
+  bool isMoving = false;
+  bool isCapturing = false;
   // print initial board and legal moves
-  printBoard(board);
-  printLegalMoves();
+  // printBoard(board);
+  // printLegalMoves();
 
   // if there is a legal move to be made
   while (haveMove) {
     
-  for (int i = 0; i < BOARDSIZE * BOARDSIZE; i++){
+  for (int i = 0; i < 16; i++){
     int muxA_state;
-    int muxB_state;
-    int muxC_state;
-    int muxD_state;
 
     mux_A.channel(i);
 
@@ -322,10 +464,12 @@ void loop()
       changedSquare(A, i, muxA_state);
     }
 
+    int muxB_state;
 
     mux_B.channel(i);
-    analogRead(b_common_pin);
 
+    analogRead(b_common_pin);
+    
     muxB_state = analogRead(b_common_pin);
     if (muxB_state > THRESHOLD){
       muxB_state = OFF;
@@ -335,11 +479,15 @@ void loop()
 
     if (muxB_state != boardStates[findBoardRow(B, i)][findBoardCol(B, i)]){
       changedSquare(B, i, muxB_state);
-    } 
+    }
+
+
+    int muxC_state;
 
     mux_C.channel(i);
-    analogRead(c_common_pin);
 
+    analogRead(c_common_pin);
+    
     muxC_state = analogRead(c_common_pin);
     if (muxC_state > THRESHOLD){
       muxC_state = OFF;
@@ -349,83 +497,62 @@ void loop()
 
     if (muxC_state != boardStates[findBoardRow(C, i)][findBoardCol(C, i)]){
       changedSquare(C, i, muxC_state);
-    } 
+    }
+
+
+    int muxD_state;
 
     mux_D.channel(i);
-    muxD_state = analogRead(d_common_pin);
 
+    analogRead(d_common_pin);
+    
+    muxD_state = analogRead(d_common_pin);
     if (muxD_state > THRESHOLD){
       muxD_state = OFF;
-    } else {
+    } else if (muxD_state <= THRESHOLD){
       muxD_state = ON;
     }
 
     if (muxD_state != boardStates[findBoardRow(D, i)][findBoardCol(D, i)]){
       changedSquare(D, i, muxD_state);
     }
-
-  }
-
-  // first check that we are not 'moving'
-  bool isMoving = false;
-  for (int row = 0; row < BOARDSIZE; row++){
-      for (int col = 0; col < BOARDSIZE; col++){
-        if (boardStates[row][col] == MOVING){
-          isMoving = true;
-        }
-      }
-  }
-
-  if (isMoving == false){
-    // change legal moves
-    for (int i = 0; i < 8; i++) {
-      for (int j = 0; j < 8; j++) {
-        if (board[i][j].type != '_') {
-          changeAvailableMoves(&board[i][j], colour);
-        }
-      }
-    }
-
-  for (int i = 0; i < 8; i++) {
-    for (int j = 0; j < 8; j++) {
-      // first, we need to check every single move and see if it leads to
-      // check (it then would be unallowed)
-      int size = arraySize(board[i][j].availableMoves);
-      for (int k = 0; k < size; k++) {
-        if (board[i][j].type != '_') {
-          if (removeCheck(board[i][j], k, board[i][j].availableMoves[k]) ==
-              true) {
-            if (board[i][j].type == 'n') {
-              for (int p = 0; p < arraySize(board[i][j].availableMoves);
-                    p++) {
-              }
-            }
-            board[i][j].availableMoves[k] = ALLOWSCHECK;
-          }
-        }
-      }
-    }
-  }
-  printLegalMoves();
-  printBoard(board);
-
-  if (colour == WHITE) {
-    colour = BLACK;
-  } else if (colour == BLACK) {
-    colour = WHITE;
-  }
-  haveMove = checkLegalMoves(colour);
-
-  if (inCheck(colour)) {
-    checkmateResult();
-  } else {
-    stalemateResult();
-  }
-
-  }
+      
 
 
-  }
+
+
+  // printLegalMoves();
+  // printBoard(board);
+
+  // if (colour == WHITE) {
+  //   colour = BLACK;
+  // } else if (colour == BLACK) {
+  //   colour = WHITE;
+  // }
+
+  // haveMove = checkLegalMoves(colour);
+  
   
 
+
+
+  }
+  }
+
+  // if (isMoving == false && isCapturing == false){
+  //   if (inCheck(colour)) {
+  //     checkmateResult();
+  //   } else {
+  //     stalemateResult();
+  //   }
+  // }
+
 }
+
+
+
+
+  
+  
+
+
