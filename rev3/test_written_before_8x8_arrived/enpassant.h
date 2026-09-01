@@ -1,5 +1,5 @@
-#ifndef ENPASSANT
-#define ENPASSANT
+#ifndef ENPASSANT_H
+#define ENPASSANT_H
 
 #ifdef __cplusplus
 extern "C" {

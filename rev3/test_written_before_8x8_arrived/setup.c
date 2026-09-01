@@ -5,6 +5,7 @@
 #include "availablemoves.h"
 #include "constantsandstructs.h"
 #include "legalmoveandcapture.h"
+#include "removecheck.h"
 
 extern Piece board[8][8];
 
@@ -47,9 +48,6 @@ void setupfunction() {
   Piece k1 = {false, 0, 8, 'e', 'k', NULL};
 
   // back row for black
-  // board[0][0] = r1;
-  // board[0][1] = n1;
-  // board[0][2] = b1;
   // board[0][3] = q1;
   // board[0][4] = k1;
   // board[0][5] = b2;
@@ -92,13 +90,36 @@ void setupfunction() {
     }
   }
 
-  board[7][1] = N1;
-  board[7][2] = B1;
+  board[6][1] = P2;
+  board[1][2] = p3;
+  board[0][3] = q1;
+  board[7][4] = K1;
+  board[7][7] = R2;
   // initial legal moves
   for (int i = 0; i < 8; i++) {
     for (int j = 0; j < 8; j++) {
       if (board[i][j].type != '_') {
         changeAvailableMoves(&board[i][j], BLACK);
+      }
+    }
+  }
+  for (int i = 0; i < 8; i++) {
+    for (int j = 0; j < 8; j++) {
+      // first, we need to check every single move and see if it leads to
+      // check (it then would be unallowed)
+      int size = arraySize(board[i][j].availableMoves);
+      for (int k = 0; k < size; k++) {
+        if (board[i][j].type != '_') {
+          if (removeCheck(board[i][j], k, board[i][j].availableMoves[k]) ==
+              true) {
+            if (board[i][j].type == 'n') {
+              for (int p = 0; p < arraySize(board[i][j].availableMoves);
+                    p++) {
+              }
+            }
+            board[i][j].availableMoves[k] = ALLOWSCHECK;
+          }
+        }
       }
     }
   }

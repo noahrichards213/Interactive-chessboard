@@ -184,7 +184,7 @@ So 45mA * 27 + 500mA = 1.7A + 64 * 0.0045 (from hall effects) is just barely ove
 Aug 30
 
 things to add in code
--capturing
+-capturing (which requires changing colour each turn)
 -castling
 -en passant
 -promotion
