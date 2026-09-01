@@ -33,6 +33,10 @@ const int b_common_pin = 6;
 const int c_common_pin = 11;
 const int d_common_pin = 12;
 
+// Define the range of GPIO pins to poll for promotion buttons
+const int startPin = 15;
+const int endPin = 18;
+
 #define A 0
 #define B 1
 #define C 2
@@ -245,6 +249,7 @@ void findMuxAndLoop(int boardRow, int boardCol, int *mux_number, int *loop_numbe
 
 //also doesn't include possibility for making illegal moves
 void changedSquare(int mux_number, int loop_number, int state){
+  Serial.println("Enter changed quare");
 
   // uint64_t long_number = 0ULL + loop_number;
   // write_leds(long_number << 8 * mux_number);;
@@ -254,12 +259,23 @@ void changedSquare(int mux_number, int loop_number, int state){
 
   // if we took a piece off, means we are prepping to make a make a move
   if (state == OFF){
+    // Serial.println("We took a piece off");
   
     uint64_t data = 0ull;
     //accounting for captures
     if (board[boardRow][boardCol].colour != colour){
+      Serial.println("Are we capturing?");
+      Serial.print("Colour: ");
+      Serial.println(colour);
+      Serial.print("board row: ");
+      Serial.println(boardRow);
+      Serial.print("board col: ");
+      Serial.println(boardCol);
+      Serial.print("board colour: ");
+      Serial.print(board[boardRow][boardCol].colour);
       boardStates[boardRow][boardCol] = CAPTURING;
     } else {
+      Serial.print("regular move");
       for (int i = 0; i < arraySize(board[boardRow][boardCol].availableMoves); i++){
 
         int realAvailableMove = board[boardRow][boardCol].availableMoves[i];
@@ -276,6 +292,8 @@ void changedSquare(int mux_number, int loop_number, int state){
       }
       write_leds(data);
       boardStates[boardRow][boardCol] = MOVING;
+      Serial.println("piece is moving");
+      delay(5000);
 
     }
   
@@ -284,6 +302,15 @@ void changedSquare(int mux_number, int loop_number, int state){
    } else if (state == ON){
 
     int moveMade = boardRow * 10 + boardCol;
+    Serial.println("This is the board states");
+
+    for (int i = 0; i < BOARDSIZE; i++){
+      for (int j = 0; j < BOARDSIZE; j++){
+        Serial.print(boardStates[i][j]);
+      }
+      Serial.println("");
+    }
+    
     Serial.print("Move made: ");
     Serial.println(moveMade);
     Piece *pieceMoved = nullptr;
@@ -296,6 +323,11 @@ void changedSquare(int mux_number, int loop_number, int state){
       }
     }
 
+    if (pieceMoved == nullptr) {
+      Serial.println("Error: Tried to complete a move, but no piece was marked as MOVING!");
+      delay(10000);
+      return; 
+    }
     int moveType = isLegalMove(moveMade, pieceMoved);
     if (moveType != NOTLEGAL){
       Serial.println("We are doing a legal move");
@@ -441,6 +473,123 @@ void changedSquare(int mux_number, int loop_number, int state){
           boardStates[capturedRow][boardCol] = OFF;
           board[capturedRow][boardCol] = empty;
 
+          } else if (moveType == PROMOTION){
+            //wait for player to take off pawn
+            int mux, loop;
+            findMuxAndLoop(boardRow, boardCol, &mux, &loop);
+            int promotion_reading = 0;
+            while (promotion_reading <= THRESHOLD){
+              if (mux == A) {
+                  Serial.println("We are at muxA for promotion");
+                  mux_A.channel(loop);
+                  analogRead(a_common_pin); // settling read
+                  promotion_reading = analogRead(a_common_pin);
+              } 
+              else if (mux == B) {
+                  mux_B.channel(loop);
+                  analogRead(b_common_pin); // settling read
+                  promotion_reading = analogRead(b_common_pin);
+              } 
+              else if (mux == C) {
+                  mux_C.channel(loop);
+                  analogRead(c_common_pin); // settling read
+                  promotion_reading = analogRead(c_common_pin);
+              } 
+              else if (mux == D) {
+                  mux_D.channel(loop);
+                  analogRead(d_common_pin); // settling read
+                  promotion_reading = analogRead(d_common_pin);
+              }  
+            }
+            Serial.println("We have removed the pawn that has promoted");
+
+            int pin = startPin;
+            int pinState = HIGH;
+            char chosenPiece;                  
+            while (pinState == HIGH) {
+              pinState = digitalRead(pin);       
+              // If the pin is pulled LOW, print an alert
+              Serial.println("We are getting to the while loop");
+              if (pinState == LOW) {
+                if (pin == 15) {
+                  if (colour == WHITE) {
+                    chosenPiece = 'Q';
+                  } else if (colour == BLACK) {
+                    chosenPiece = 'q';
+                  } 
+                  
+                  } else if (pin == 16) {
+                  if (colour == WHITE) {
+                    chosenPiece = 'N';
+                  } else if (colour == BLACK) {
+                    chosenPiece = 'n';
+                  }
+                  } else if (pin == 17) {
+                  if (colour == WHITE) {
+                    chosenPiece = 'B';
+                  } else if (colour == BLACK) {
+                    chosenPiece = 'b';
+                  }
+                  } else if (pin == 18) {
+                  if (colour == WHITE) {
+                    chosenPiece = 'R';
+                  } else if (colour == BLACK) {
+                    chosenPiece = 'r';
+                  }
+                }
+              }
+              pin++; // Move to the next pin
+    
+              // If we go past 18, wrap back around to 15
+              if (pin > 18) {
+                  pin = 15;
+              }
+              }
+
+              Piece promotedPawn = {true, colour, 8 - boardRow, 'a' + boardCol, chosenPiece, NULL};
+              Serial.print("this is the chosen piece: ");
+              Serial.println(chosenPiece);
+
+              int promotion_reading_2 = 1000;
+              while (promotion_reading_2 > THRESHOLD){
+                if (mux == A) {
+                    Serial.println("We are at muxA for waiting for new piece to be placed");
+                    mux_A.channel(loop);
+                    analogRead(a_common_pin); // settling read
+                    promotion_reading_2 = analogRead(a_common_pin);
+                } 
+                else if (mux == B) {
+                    mux_B.channel(loop);
+                    analogRead(b_common_pin); // settling read
+                    promotion_reading_2 = analogRead(b_common_pin);
+                } 
+                else if (mux == C) {
+                    mux_C.channel(loop);
+                    analogRead(c_common_pin); // settling read
+                    promotion_reading_2 = analogRead(c_common_pin);
+                } 
+                else if (mux == D) {
+                    mux_D.channel(loop);
+                    analogRead(d_common_pin); // settling read
+                    promotion_reading_2 = analogRead(d_common_pin);
+                }  
+            }
+
+            for (int promotedrow = 0; promotedrow < BOARDSIZE; promotedrow++) {
+              for (int promotedcol = 0; promotedcol < BOARDSIZE; promotedcol++) {
+                if (boardStates[promotedrow][promotedcol] == MOVING) {
+                  board[promotedrow][promotedcol] = promotedPawn;
+                }
+              }
+            }
+
+            Serial.println("This is the printed board after promotion");
+            printBoard(board);
+            Serial.println("We have placed the piece on");
+
+            
+                    
+
           }
         }
       
@@ -581,7 +730,9 @@ void stalemateResult(){
 int isLegalMove(int moveMade, Piece *pieceMoved){
   for (int i = 0; i < arraySize(pieceMoved -> availableMoves); i++){
     int availableMove = pieceMoved -> availableMoves[i];
-    if (moveMade == availableMove){
+    if (pieceMoved -> type == 'P' && (moveMade / 10 == 0) || pieceMoved -> type == 'p' && (moveMade / 10 == 7)){
+      return PROMOTION;
+    } else if (moveMade == availableMove){
       return NORMAL;
     } else if (moveMade != 0 && moveMade == availableMove / 100) {
       return CASTLING;
@@ -602,15 +753,17 @@ void setup()
   //boardStates setup
   for (int i = 0; i < BOARDSIZE; i++){
     for (int j = 0; j < BOARDSIZE; j++){
-      boardStates[i][j] = OFF;
+      if (i == 0 || i == 1 || i == 6 || i == 7) {
+        boardStates[i][j] = ON;
+      } else {
+        boardStates[i][j] = OFF;
+      }
     }
   }
 
-  boardStates[6][1] = ON;
-  boardStates[1][2] = ON;
-  boardStates[0][3] = ON;
-  boardStates[7][4] = ON;
-  boardStates[7][7] = ON;
+
+
+
   
   pinMode(SER_IN, OUTPUT);
   pinMode(SRCK, OUTPUT);
@@ -631,6 +784,10 @@ void setup()
   pinMode(d_common_pin, INPUT);
 
   Serial.println("Multiplexer code initialized");
+
+  for (int pin = startPin; pin <= endPin; pin++) {
+    pinMode(pin, INPUT_PULLUP);
+  }
 
 }
 
@@ -660,6 +817,8 @@ void loop()
     }
 
     if (muxA_state != boardStates[findBoardRow(A, i)][findBoardCol(A, i)]){
+      Serial.print("A: We are changing on: ");
+      Serial.println(i);
       changedSquare(A, i, muxA_state);
     }
 
@@ -677,6 +836,9 @@ void loop()
     }
 
     if (muxB_state != boardStates[findBoardRow(B, i)][findBoardCol(B, i)]){
+      Serial.print("B: We are changing on: ");
+      Serial.println(i);
+
       changedSquare(B, i, muxB_state);
     }
 
@@ -695,6 +857,8 @@ void loop()
     }
 
     if (muxC_state != boardStates[findBoardRow(C, i)][findBoardCol(C, i)]){
+      Serial.print("C: We are changing on: ");
+      Serial.println(i);
       changedSquare(C, i, muxC_state);
     }
 
@@ -713,6 +877,8 @@ void loop()
     }
 
     if (muxD_state != boardStates[findBoardRow(D, i)][findBoardCol(D, i)]){
+      Serial.print("D: We are changing on: ");
+      Serial.println(i);
       changedSquare(D, i, muxD_state);
     }
       
