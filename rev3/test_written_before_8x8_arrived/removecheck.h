@@ -8,7 +8,8 @@ extern "C" {
 #include <stdbool.h>
 #include "constantsandstructs.h"
 
-bool removeCheck(Piece piece, int availableMoveIndex, int testedMove);
+int removeCheck(Piece piece, int availableMoveIndex, int testedMove);
+void deepCopyPiece(Piece *dest, Piece *src);
 
 #ifdef __cplusplus
 }

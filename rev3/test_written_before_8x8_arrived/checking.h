@@ -10,7 +10,7 @@ extern "C" {
 #include "constantsandstructs.h"
 
 // checks if in check
-bool inCheck(int colour);
+int inCheck(int colour);
 
 // checks if castling thtrough check
 bool throughCheck(int castle, int colour);

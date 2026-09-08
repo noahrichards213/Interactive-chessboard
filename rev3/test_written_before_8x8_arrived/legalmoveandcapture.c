@@ -9,10 +9,15 @@
 extern Piece board[8][8];
 
 // int colour is the colour whose turn it is not
-void changeAvailableMoves(Piece* piece, int colour) {
+void changeAvailableMoves(Piece* piece, int colour) {  
   char type = piece->type;
 
-
+  // we don't want to remove en passant move
+  if (type != 'P' && type != 'p') {
+    free(piece->availableMoves);
+    piece->availableMoves = NULL;
+  }
+  
   if (type == 'P' || type == 'p') {
     piece->availableMoves = pawnMoves(*piece);
   } else if (type == 'R' || type == 'r') {

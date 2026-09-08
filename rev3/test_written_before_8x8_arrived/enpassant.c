@@ -33,12 +33,10 @@ void addEnPassant(Piece piece, int rank, char file) {
   // old rank - new rank
   int difference = abs(piece.rank - rank);
 
-  printf("this is the difference: %d\n", difference);
 
   // if pawn did not move two squares then we don't need this function
   if (difference != 2) {
-    printf("We did return\n");
-    printf("The difference is: %d\n", difference);
+
     return;
   }
 

@@ -46,6 +46,15 @@ int* rookMoves(Piece piece) {
   }
   allMoves[index] = -1;
 
+  free(left);
+  free(right);
+  free(up);
+  free(down);
+
+  left = NULL;
+  right = NULL;
+  up = NULL;
+  down = NULL;
   return allMoves;
 }
 
@@ -85,6 +94,15 @@ int* bishopMoves(Piece piece) {
   }
   allMoves[index] = -1;
 
+  free(topLeft);
+  free(topRight);
+  free(bottomRight);
+  free(bottomLeft);
+
+  topLeft = NULL;
+  topRight = NULL;
+  bottomRight = NULL;
+  bottomLeft = NULL;
   return allMoves;
 }
 
@@ -111,7 +129,11 @@ int* queenMoves(Piece piece) {
     allMoves[index] = movesFromBishop[i];
   }
   allMoves[index] = -1;
+  free(movesFromRook);
+  free(movesFromBishop);
 
+  movesFromRook = NULL;
+  movesFromBishop = NULL;
   return allMoves;
 }
 
@@ -159,7 +181,9 @@ int* knightMoves(Piece piece) {
     }
   }
 
+
   allMoves[index] = -1;
+
   return allMoves;
 }
 
@@ -201,7 +225,12 @@ int* pawnMoves(Piece piece) {
   int enPassantMove = -1;
   if (piece.availableMoves != NULL) {
     if (piece.availableMoves[0] > 10000) {
+      printf("We are getting here\n");
       enPassantMove = piece.availableMoves[0];
+      free(piece.availableMoves);
+      piece.availableMoves = NULL;
+    } else {
+      free(piece.availableMoves);
     }
   }
 

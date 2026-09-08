@@ -82,6 +82,7 @@ const int endPin = 18;
 // function to remove illegal moves because it would leave player in check
 #include "removecheck.h"
 
+#include "findkingsquare.h"
 //END OF INCLUDING HEADERS
 
 // Initialize the multiplexer with control pins S0, S1, S2, S3
@@ -249,11 +250,13 @@ void findMuxAndLoop(int boardRow, int boardCol, int *mux_number, int *loop_numbe
 
 //also doesn't include possibility for making illegal moves
 void changedSquare(int mux_number, int loop_number, int state){
-  Serial.println("Enter changed quare");
+
+
 
   // uint64_t long_number = 0ULL + loop_number;
   // write_leds(long_number << 8 * mux_number);;
 
+  
   int boardRow = findBoardRow(mux_number, loop_number);
   int boardCol = findBoardCol(mux_number, loop_number);
 
@@ -264,18 +267,23 @@ void changedSquare(int mux_number, int loop_number, int state){
     uint64_t data = 0ull;
     //accounting for captures
     if (board[boardRow][boardCol].colour != colour){
-      Serial.println("Are we capturing?");
-      Serial.print("Colour: ");
-      Serial.println(colour);
-      Serial.print("board row: ");
-      Serial.println(boardRow);
-      Serial.print("board col: ");
-      Serial.println(boardCol);
-      Serial.print("board colour: ");
-      Serial.print(board[boardRow][boardCol].colour);
+      Serial.println("We are capturing");
+      
+      // for (int r = 0; r < BOARDSIZE; r++){
+      //   for (int c = 0; c < BOARDSIZE; c++){
+      //     Serial.print(boardStates[r][c]);
+      //   }
+      //   Serial.println("");
+      // }
       boardStates[boardRow][boardCol] = CAPTURING;
     } else {
-      Serial.print("regular move");
+      // Serial.println("regular move");
+      // for (int i = 0; i < BOARDSIZE; i++){
+      //   for (int j = 0; j < BOARDSIZE; j++){
+      //     Serial.print(boardStates[i][j]);
+      //   }
+      //   Serial.println("");
+      // }
       for (int i = 0; i < arraySize(board[boardRow][boardCol].availableMoves); i++){
 
         int realAvailableMove = board[boardRow][boardCol].availableMoves[i];
@@ -293,7 +301,6 @@ void changedSquare(int mux_number, int loop_number, int state){
       write_leds(data);
       boardStates[boardRow][boardCol] = MOVING;
       Serial.println("piece is moving");
-      delay(5000);
 
     }
   
@@ -302,14 +309,7 @@ void changedSquare(int mux_number, int loop_number, int state){
    } else if (state == ON){
 
     int moveMade = boardRow * 10 + boardCol;
-    Serial.println("This is the board states");
 
-    for (int i = 0; i < BOARDSIZE; i++){
-      for (int j = 0; j < BOARDSIZE; j++){
-        Serial.print(boardStates[i][j]);
-      }
-      Serial.println("");
-    }
     
     Serial.print("Move made: ");
     Serial.println(moveMade);
@@ -325,7 +325,6 @@ void changedSquare(int mux_number, int loop_number, int state){
 
     if (pieceMoved == nullptr) {
       Serial.println("Error: Tried to complete a move, but no piece was marked as MOVING!");
-      delay(10000);
       return; 
     }
     int moveType = isLegalMove(moveMade, pieceMoved);
@@ -433,6 +432,10 @@ void changedSquare(int mux_number, int loop_number, int state){
         board[originalRookRow][originalRookCol] = empty;
         boardStates[finalRookRow][finalRookCol] = ON;
         boardStates[originalRookRow][originalRookCol] = OFF;
+
+        board[finalRookRow][finalRookCol].rank = 8 - finalRookRow;
+        board[finalRookRow][finalRookCol].file = 'a' + finalRookCol;
+        board[finalRookRow][finalRookCol].hasMoved = true;
         write_leds(0);
 
       } else if (moveType == ENPASSANT){
@@ -583,10 +586,6 @@ void changedSquare(int mux_number, int loop_number, int state){
               }
             }
 
-            Serial.println("This is the printed board after promotion");
-            printBoard(board);
-            Serial.println("We have placed the piece on");
-
             
                     
 
@@ -594,6 +593,7 @@ void changedSquare(int mux_number, int loop_number, int state){
         }
       
     boardStates[boardRow][boardCol] = ON;
+
 
 
     //updating board w/ move
@@ -614,22 +614,17 @@ void changedSquare(int mux_number, int loop_number, int state){
           board[boardRow][boardCol].hasMoved = true;
           
           printBoard(board);
-          Serial.print("boardRow: ");
-          Serial.println(boardRow);
-          Serial.print("boardCol: ");
-          Serial.println(boardCol);
+
 
           removeEnPassant();
+
 
           if (board[boardRow][boardCol].type == 'P' || board[boardRow][boardCol].type == 'p') {
             addEnPassant(sourcePiece, board[boardRow][boardCol].rank, letter);
           }
+
+
     
-          if (colour == WHITE) {
-            colour = BLACK;
-          } else if (colour == BLACK) {
-            colour = WHITE;
-          }
 
           // change legal moves
           for (int i = 0; i < 8; i++) {
@@ -641,32 +636,66 @@ void changedSquare(int mux_number, int loop_number, int state){
             }
           }
 
+
+
         for (int i = 0; i < 8; i++) {
           for (int j = 0; j < 8; j++) {
             // first, we need to check every single move and see if it leads to
             // check (it then would be unallowed)
+
             int size = arraySize(board[i][j].availableMoves);
             for (int k = 0; k < size; k++) {
-              if (board[i][j].type != '_') {
-                if (removeCheck(board[i][j], k, board[i][j].availableMoves[k]) ==
-                    true) {
-                  if (board[i][j].type == 'n') {
-                    for (int p = 0; p < arraySize(board[i][j].availableMoves);
-                          p++) {
-                    }
-                  }
+              // Serial.print("k: ");
+              // Serial.println(k);
+              // Serial.print("the move: ");
+              // Serial.println(board[i][j].availableMoves[k]);
+              if (board[i][j].type != '_' && board[i][j].colour != colour) {
+                // printf("main function. i: %d, j: %d\n", i, j);
+                if (removeCheck(board[i][j], k, board[i][j].availableMoves[k]) !=
+                    -1) {
                   board[i][j].availableMoves[k] = ALLOWSCHECK;
+                  Serial.print("THERE ARE MOVES THAT ALLOW CHECK");
                 }
               }
             }
           }
         }
-  
-          
+
+         if (colour == WHITE) {
+          colour = BLACK;
+         } else {
+            colour = WHITE;
+         }
+
+        if (checkLegalMoves(colour) == false){
+          int checkmatingPiece = inCheck(colour);
+          if (checkmatingPiece != -1) {
+            Serial.print("This is inCheck(colour): ");
+            Serial.println(checkmatingPiece);
+            checkmateResult(checkmatingPiece);
+          } else {
+            stalemateResult();
+          }
+        } else {
+          for (int q = 0; q < 8; q++){
+            for(int w = 0; w < 8; w++){
+              if (board[q][w].colour == colour){
+                for (int e = 0; e < arraySize(board[q][w].availableMoves); e++){
+                  Serial.print(board[q][w].type);
+                  Serial.print(board[q][w].availableMoves[e]);
+                  Serial.println("");
+                }
+              }
+            }
+          }
         }
+
+
+        } 
       
       }
     }
+
     //removes all the LEDS
     write_leds(0);
 
@@ -677,7 +706,6 @@ void changedSquare(int mux_number, int loop_number, int state){
     }
   }
   
-
 
 
 
@@ -719,12 +747,68 @@ int checkMux(int mux_number){
 
 }
 
-void checkmateResult(){
+void checkmateResult(int checkingSquare){
   Serial.println("It's checkmate");
+  char kingCharacter = colour == WHITE ? 'K' : 'k';
+  int kingSquare = findKingSquare(colour);
+  for (int i = 0; i < BOARDSIZE; i++){
+    for (int j = 0; j < BOARDSIZE; j++){
+        changeAvailableMoves(&board[i][j], colour);
+    }
+  }
+
+  Serial.print("Checking square: ");
+  Serial.println(checkingSquare);
+  uint64_t data = 0ull;
+
+  Serial.print("colour: ");
+  Serial.println(colour);
+  bool seen[78] = {false};
+  for (int i = 0; i < 8; i++) {
+    for (int j = 0; j < 8; j++) {
+      // first, we need to check every single move and see if it leads to
+      // check (it then would be unallowed)
+
+      int size = arraySize(board[i][j].availableMoves);
+      for (int k = 0; k < size; k++) {
+
+        if (board[i][j].type != '_' && board[i][j].colour == colour) {
+          // printf("main function. i: %d, j: %d\n", i, j);
+          int yesRemove = removeCheck(board[i][j], k, board[i][j].availableMoves[k]);
+          if (yesRemove != -1 && seen[yesRemove] == false) {
+            data += calculateoneLED(yesRemove);
+            seen[yesRemove] = true;
+            Serial.print("yesRemove: ");
+            Serial.println(yesRemove);
+
+          } else {
+            Serial.print("piece: ");
+            Serial.println(board[i][j].type);
+            Serial.print("YESREMOVE: ");
+            Serial.println(yesRemove);
+          }
+        }
+      }
+    }
+  }
+  
+  if (seen[checkingSquare] == false){
+    data += calculateoneLED(checkingSquare);
+  }
+  data += calculateoneLED(kingSquare);
+  write_leds(data);
+
+
+
+
+
+
+  delay(200000);
 }
 
 void stalemateResult(){
   Serial.println("It's stalemate");
+  delay(20000);
 }
 
 int isLegalMove(int moveMade, Piece *pieceMoved){
@@ -745,7 +829,6 @@ int isLegalMove(int moveMade, Piece *pieceMoved){
 void setup()
 {
   Serial.begin(115200);    
-  Serial.println("REMEMBER THAT SETUP IS NOT YET COMPLETE");
   //setup from vscode main
   setupfunction();
 
@@ -788,6 +871,8 @@ void setup()
   for (int pin = startPin; pin <= endPin; pin++) {
     pinMode(pin, INPUT_PULLUP);
   }
+
+  Serial.print("We are writing LEDS");
 
 }
 
@@ -900,13 +985,6 @@ void loop()
   }
   }
 
-  // if (isMoving == false && isCapturing == false){
-  //   if (inCheck(colour)) {
-  //     checkmateResult();
-  //   } else {
-  //     stalemateResult();
-  //   }
-  // }
 
 }
 

@@ -113,11 +113,7 @@ int main() {
     haveMove = checkLegalMoves(colour);
   }
 
-  if (inCheck(colour)) {
-    printf("It's checkmate\n");
-  } else {
-    printf("It's stalemate\n");
-  }
+
 
   return 0;
 }

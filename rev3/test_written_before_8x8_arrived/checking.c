@@ -14,7 +14,7 @@
 
 extern Piece board[8][8];
 
-bool inCheck(int colour) {
+int inCheck(int colour) {
   int kingSquare = findKingSquare(colour);
 
   for (int i = 0; i < 8; i++) {
@@ -23,11 +23,11 @@ bool inCheck(int colour) {
       if (board[i][j].colour != colour && board[i][j].type != '_') {
         int k = 0;
         Piece piece = board[i][j];
-        printf("type: %c\n", board[i][j].type);
-        printf("move: %d\n", board[i][j].availableMoves[k]);
         while (board[i][j].availableMoves[k] != -1) {
           if (board[i][j].availableMoves[k] == kingSquare) {
-            return true;
+            int pieceSquare = (i * 10) + j;
+            printf("piece square: %d\n", pieceSquare);
+            return pieceSquare;
           } else {
             k++;
           }
@@ -35,7 +35,7 @@ bool inCheck(int colour) {
       }
     }
   }
-  return false;
+  return -1;
 }
 
 bool throughCheck(int castle, int colour) {

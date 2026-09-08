@@ -103,24 +103,19 @@ void setupfunction() {
       }
     }
   }
-  for (int i = 0; i < 8; i++) {
-    for (int j = 0; j < 8; j++) {
-      // first, we need to check every single move and see if it leads to
-      // check (it then would be unallowed)
-      int size = arraySize(board[i][j].availableMoves);
-      for (int k = 0; k < size; k++) {
-        if (board[i][j].type != '_') {
-          if (removeCheck(board[i][j], k, board[i][j].availableMoves[k]) ==
-              true) {
-            if (board[i][j].type == 'n') {
-              for (int p = 0; p < arraySize(board[i][j].availableMoves);
-                    p++) {
-              }
-            }
-            board[i][j].availableMoves[k] = ALLOWSCHECK;
-          }
-        }
-      }
-    }
-  }
+  // for (int i = 0; i < 8; i++) {
+  //   for (int j = 0; j < 8; j++) {
+  //     // first, we need to check every single move and see if it leads to
+  //     // check (it then would be unallowed)
+  //     int size = arraySize(board[i][j].availableMoves);
+  //     for (int k = 0; k < size; k++) {
+  //       if (board[i][j].type != '_') {
+  //         if (removeCheck(board[i][j], k, board[i][j].availableMoves[k]) ==
+  //             true) {
+  //           board[i][j].availableMoves[k] = ALLOWSCHECK;
+  //         }
+  //       }
+  //     }
+  //   }
+  // }
 }
