@@ -263,7 +263,14 @@ void changedSquare(int mux_number, int loop_number, int state){
   // if we took a piece off, means we are prepping to make a make a move
   if (state == OFF){
     // Serial.println("We took a piece off");
-  
+    for (int row = 0; row < BOARDSIZE; row++){
+      for (int col = 0; col < BOARDSIZE; col++){
+        if (boardStates[row][col] == MOVING){
+          return;
+        }
+      }
+    }
+
     uint64_t data = 0ull;
     //accounting for captures
     if (board[boardRow][boardCol].colour != colour){
@@ -324,9 +331,28 @@ void changedSquare(int mux_number, int loop_number, int state){
     }
 
     if (pieceMoved == nullptr) {
-      Serial.println("Error: Tried to complete a move, but no piece was marked as MOVING!");
-      return; 
+        // If a piece is placed on a square marked CAPTURING, the user placed 
+        // the attacking piece down before lifting it from its start square.
+        if (boardStates[boardRow][boardCol] == CAPTURING) {
+            Serial.println("Attacking piece placed before source piece was lifted.");
+            boardStates[boardRow][boardCol] = ON;
+            // Keep square marked as pending until the source piece is lifted
+            return; 
+        }
+
+        // Ignore phantom hits or sensor chatter
+        Serial.println("Ignoring orphan ON event (no piece was moving).");
+        boardStates[boardRow][boardCol] = ON;
+        return; 
+        if (colour == WHITE){
+          colour = BLACK;
+        } else {
+          colour = WHITE;
+        }
+        
     }
+
+
     int moveType = isLegalMove(moveMade, pieceMoved);
     if (moveType != NOTLEGAL){
       Serial.println("We are doing a legal move");
@@ -660,7 +686,9 @@ void changedSquare(int mux_number, int loop_number, int state){
             }
           }
         }
-
+        
+        delay(1000);
+        
          if (colour == WHITE) {
           colour = BLACK;
          } else {
